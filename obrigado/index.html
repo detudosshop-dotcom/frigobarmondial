@@ -18,7 +18,77 @@ body{margin:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:
 h1{margin:6px 0 8px;font-size:24px;font-weight:800}
 p{color:#4b5563;line-height:1.55;margin:0 0 8px}
 </style>
-<script src="/js/utmify-pixel.js" async defer></script></head>
+<script src="/js/utmify-pixel.js" async defer></script><!-- START-IMAGE-FALLBACK -->
+<script>
+// Fallback inteligente para imagens e conexões móveis (zero broken images)
+(function(){
+  function fixImg(img) {
+    if (!img || img.dataset.fbApplied) return;
+    img.dataset.fbApplied = '1';
+    img.addEventListener('error', function() {
+      var s = this.getAttribute('src') || '';
+      if (!s || s.startsWith('data:')) return;
+      if (!this.dataset.fbStep) {
+        this.dataset.fbStep = '1';
+        var m = s.startsWith('/l5e/') ? s.replace('/l5e/', '/__l5e/') : s;
+        this.src = 'https://frigobarmondialshop.lovable.app' + m;
+      } else if (this.dataset.fbStep === '1') {
+        this.dataset.fbStep = '2';
+        this.src = 'https://raw.githubusercontent.com/detudosshop-dotcom/frigobarmondial/main' + s;
+      }
+    });
+  }
+  function scan() {
+    document.querySelectorAll('img').forEach(fixImg);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scan);
+  } else {
+    scan();
+  }
+  try {
+    new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
+  } catch(e){}
+})();
+</script>
+<!-- END-IMAGE-FALLBACK -->
+<style id="fluidez-styles">
+
+/* Mobile Fluidez & Performance Boost */
+*, *::before, *::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  touch-action: pan-y;
+  text-rendering: optimizeLegibility;
+  background-color: #ffffff;
+}
+img, video {
+  max-width: 100%;
+  height: auto;
+  content-visibility: auto;
+}
+button, a, input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+</style>
+</head>
 <body>
 <div class="card">
   <div class="check">✓</div>

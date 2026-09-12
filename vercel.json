@@ -1,12 +1,7 @@
 {
-  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/api/:match*",
-      "destination": "/api/index.js"
-    },
     {
       "source": "/pagamento",
       "destination": "/pagamento.html"
@@ -47,7 +42,7 @@
       ]
     },
     {
-      "source": "/(assets|css|images|l5e)/(.*)",
+      "source": "/(assets|css|images|l5e|js)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

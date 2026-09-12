@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "build": "node -e \"console.log('Build OK')\""
+    "dev": "node server.js"
   },
   "keywords": [
     "mondial",
