@@ -1,0 +1,59 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/pagamento",
+      "destination": "/pagamento.html"
+    },
+    {
+      "source": "/upsell1",
+      "destination": "/upsell1.html"
+    },
+    {
+      "source": "/upsell2",
+      "destination": "/upsell2.html"
+    },
+    {
+      "source": "/upsell3",
+      "destination": "/upsell3.html"
+    },
+    {
+      "source": "/upsell4",
+      "destination": "/upsell4.html"
+    },
+    {
+      "source": "/obrigado",
+      "destination": "/obrigado.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/(assets|css|images|l5e)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
