@@ -12,7 +12,7 @@ const UTMIFY_API_TOKEN = process.env.UTMIFY_API_TOKEN || DEFAULT_UTMIFY_TOKEN;
 const transactionsDb = new Map();
 
 const FAQ_REPLIES = {
-  'entrega': 'Nosso prazo de entrega é de 1 a 7 dias úteis via Sedex ou Transportadora Expressa com rastreamento completo em tempo real!',
+  'entrega': 'Nosso prazo de entrega padrão é de 8 a 12 dias úteis com Frete Grátis, ou em até 5 dias úteis no Frete Expresso com rastreamento completo em tempo real!',
   'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo gateway oficial FlevoPay!',
   'voltagem': 'Temos disponibilidade em 110V e 220V nas cores Preto e Branco.',
   'cor': 'Temos disponibilidade nas cores Preto e Branco a pronta entrega.',
