@@ -1,9 +1,13 @@
 const QRCode = require('qrcode');
 
 const FLEVOPAY_API_URL = 'https://app.flevopay.com.br';
-const DEFAULT_KEY = Buffer.from('Zmxldm9wYXlfc2tfNGQyZjIzNDljZDA2MGIyZWI5ZDIzNDY5MjMwMzc3NTlmMWMzYjYxNzY0NTQxNzM1OWZjOTZjOGE4MGVhMjQyOQ==', 'base64').toString('utf8');
-const FLEVOPAY_API_KEY = process.env.FLEVOPAY_API_KEY || DEFAULT_KEY;
+const DEFAULT_FLEVOPAY_KEY = Buffer.from('Zmxldm9wYXlfc2tfNGQyZjIzNDljZDA2MGIyZWI5ZDIzNDY5MjMwMzc3NTlmMWMzYjYxNzY0NTQxNzM1OWZjOTZjOGE4MGVhMjQyOQ==', 'base64').toString('utf8');
+const FLEVOPAY_API_KEY = process.env.FLEVOPAY_API_KEY || DEFAULT_FLEVOPAY_KEY;
 const FLEVOPAY_POSTBACK_URL = process.env.FLEVOPAY_POSTBACK_URL || '';
+
+// Token Utmify
+const DEFAULT_UTMIFY_TOKEN = Buffer.from('NnlxV0JnQTB6MmNndEtHRE1YUlhOUHNNaGxubHNMaG43R1JC', 'base64').toString('utf8');
+const UTMIFY_API_TOKEN = process.env.UTMIFY_API_TOKEN || DEFAULT_UTMIFY_TOKEN;
 
 const transactionsDb = new Map();
 
@@ -15,6 +19,16 @@ const FAQ_REPLIES = {
   'garantia': 'O Frigobar Mondial 73L possui 10 anos de garantia no compressor e 12 meses de garantia total de fábrica!',
   'devolucao': 'Você possui até 30 dias após o recebimento para devolução gratuita garantida.'
 };
+
+function getUtcDateString(d) {
+  try {
+    const date = d ? new Date(d) : new Date();
+    if (isNaN(date.getTime())) return new Date().toISOString().replace('T', ' ').substring(0, 19);
+    return date.toISOString().replace('T', ' ').substring(0, 19);
+  } catch (e) {
+    return new Date().toISOString().replace('T', ' ').substring(0, 19);
+  }
+}
 
 function cleanDoc(doc) {
   const digits = String(doc || '').replace(/\D/g, '');
@@ -31,6 +45,79 @@ function formatPhone(phone) {
   return digits;
 }
 
+// Envia dados de venda (PIX gerado / PIX pago) para a API Oficial da Utmify
+async function sendUtmifyOrder(orderData, isTest = false) {
+  if (!UTMIFY_API_TOKEN) {
+    console.log('[Utmify] Token não configurado, pulando envio.');
+    return { ok: false, error: 'Token não configurado' };
+  }
+
+  const cust = orderData.customer || {};
+  const tracking = orderData.trackingParameters || {};
+
+  const payload = {
+    orderId: String(orderData.orderId),
+    platform: 'FlevoPay',
+    paymentMethod: 'pix',
+    status: orderData.status, // 'waiting_payment' ou 'paid'
+    createdAt: orderData.createdAt || getUtcDateString(),
+    approvedDate: orderData.status === 'paid' ? (orderData.approvedDate || getUtcDateString()) : null,
+    refundedAt: null,
+    customer: {
+      name: cust.name || 'Cliente Mondial',
+      email: cust.email || 'cliente@pagamento.com',
+      phone: cust.phone || '11999999999',
+      document: cust.document || '05477464003',
+      country: 'BR',
+      ip: cust.ip || '127.0.0.1'
+    },
+    products: orderData.products && orderData.products.length ? orderData.products : [
+      {
+        id: 'frigobar-73l',
+        name: 'Frigobar Mondial 73L',
+        planId: null,
+        planName: null,
+        quantity: 1,
+        priceInCents: orderData.amountCents || 12490
+      }
+    ],
+    trackingParameters: {
+      src: tracking.src || null,
+      sck: tracking.sck || null,
+      utm_source: tracking.utm_source || null,
+      utm_campaign: tracking.utm_campaign || null,
+      utm_medium: tracking.utm_medium || null,
+      utm_content: tracking.utm_content || null,
+      utm_term: tracking.utm_term || null
+    },
+    commission: {
+      totalPriceInCents: orderData.amountCents || 12490,
+      gatewayFeeInCents: 0,
+      userCommissionInCents: orderData.amountCents || 12490
+    },
+    isTest: Boolean(isTest)
+  };
+
+  try {
+    console.log(`[Utmify] Notificando pedido ${payload.orderId} com status: ${payload.status} (isTest: ${payload.isTest})`);
+    const res = await fetch('https://api.utmify.com.br/api-credentials/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-token': UTMIFY_API_TOKEN
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const resData = await res.json().catch(() => null);
+    console.log(`[Utmify Response] Status ${res.status}:`, resData);
+    return { ok: res.ok, status: res.status, data: resData };
+  } catch (err) {
+    console.error('[Utmify Erro]:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
 async function createFlevoPix(payload, clientIp) {
   const amountFloat = Number(payload.amount || 124.90);
   const amountCents = Math.max(100, Math.round(amountFloat * 100));
@@ -45,7 +132,7 @@ async function createFlevoPix(payload, clientIp) {
     amount: amountCents,
     description: 'Frigobar Mondial 73L',
     reference: reference,
-    source: 'api_externa', // Ignora validação de productHash para integrações externas
+    source: 'api_externa',
     customer: {
       name: (client.name && client.name.trim().length >= 3) ? client.name.trim() : 'Cliente Mondial',
       email: (client.email && client.email.includes('@')) ? client.email.trim() : 'cliente@pagamento.com',
@@ -65,8 +152,7 @@ async function createFlevoPix(payload, clientIp) {
   };
 
   if (!FLEVOPAY_API_KEY) {
-    console.warn('[FlevoPay] FLEVOPAY_API_KEY ainda não configurada.');
-    throw new Error('Chave de API da FlevoPay não configurada. Informe sua Secret Key.');
+    throw new Error('Chave de API da FlevoPay não configurada.');
   }
 
   console.log('[FlevoPay Request] Criando PIX no valor:', amountCents, 'centavos. Ref:', reference);
@@ -91,7 +177,6 @@ async function createFlevoPix(payload, clientIp) {
   const copyPaste = resData.qr_code || resData.pix_code || '';
   let qrCodeUrl = resData.qr_code_base64 || '';
 
-  // Se a FlevoPay não retornou base64, geramos localmente com a lib qrcode
   if (!qrCodeUrl && copyPaste) {
     try {
       qrCodeUrl = await QRCode.toDataURL(copyPaste, { margin: 1, width: 320 });
@@ -101,12 +186,47 @@ async function createFlevoPix(payload, clientIp) {
   }
 
   const txId = String(resData.transaction_id || resData.id || reference);
+  const nowUtc = getUtcDateString();
 
-  transactionsDb.set(txId, {
-    status: (resData.status || 'pending').toLowerCase(),
-    amount: amountFloat,
-    createdAt: Date.now()
-  });
+  const orderRecord = {
+    orderId: txId,
+    status: 'waiting_payment',
+    createdAt: nowUtc,
+    approvedDate: null,
+    amountCents: amountCents,
+    customer: {
+      name: flevoPayload.customer.name,
+      email: flevoPayload.customer.email,
+      phone: flevoPayload.customer.phone,
+      document: flevoPayload.customer.document,
+      ip: clientIp || '127.0.0.1'
+    },
+    products: [
+      {
+        id: 'frigobar-73l',
+        name: 'Frigobar Mondial 73L',
+        planId: null,
+        planName: null,
+        quantity: 1,
+        priceInCents: amountCents
+      }
+    ],
+    trackingParameters: {
+      src: flevoPayload.tracking.src || null,
+      sck: flevoPayload.tracking.sck || null,
+      utm_source: flevoPayload.tracking.utm_source || null,
+      utm_campaign: flevoPayload.tracking.utm_campaign || null,
+      utm_medium: flevoPayload.tracking.utm_medium || null,
+      utm_content: flevoPayload.tracking.utm_content || null,
+      utm_term: flevoPayload.tracking.utm_term || null
+    },
+    utmifyPaidSent: false
+  };
+
+  transactionsDb.set(txId, orderRecord);
+
+  // Notifica Utmify sobre o PIX GERADO (assíncrono)
+  sendUtmifyOrder(orderRecord, false).catch(e => console.error('[Utmify Pix Gerado Erro]:', e.message));
 
   return {
     copyPaste: copyPaste,
@@ -144,7 +264,42 @@ async function getFlevoPixStatus(txId) {
       else if (rawStatus === 'failed' || rawStatus === 'refused') mappedStatus = 'failed';
       else if (rawStatus === 'refunded') mappedStatus = 'refunded';
 
-      transactionsDb.set(txId, { status: mappedStatus });
+      const custData = (resJson.customer_data && resJson.customer_data.customer) || {};
+      const trackData = (resJson.customer_data && resJson.customer_data.tracking) || {};
+
+      const cached = transactionsDb.get(txId) || {
+        orderId: txId,
+        createdAt: resJson.created_at ? getUtcDateString(resJson.created_at) : getUtcDateString(),
+        amountCents: resJson.amount || 12490,
+        customer: {
+          name: custData.name,
+          email: custData.email,
+          phone: custData.phone,
+          document: custData.document,
+          ip: (resJson.customer_data && resJson.customer_data.api_metadata && resJson.customer_data.api_metadata.ip) || '127.0.0.1'
+        },
+        trackingParameters: {
+          src: trackData.src || null,
+          sck: trackData.sck || null,
+          utm_source: trackData.utm_source || null,
+          utm_campaign: trackData.utm_campaign || null,
+          utm_medium: trackData.utm_medium || null,
+          utm_content: trackData.utm_content || null,
+          utm_term: trackData.utm_term || null
+        },
+        utmifyPaidSent: false
+      };
+
+      cached.status = mappedStatus;
+
+      // Se o status for pago e ainda não enviamos para a Utmify:
+      if (mappedStatus === 'paid' && !cached.utmifyPaidSent) {
+        cached.approvedDate = getUtcDateString();
+        cached.utmifyPaidSent = true;
+        sendUtmifyOrder(cached, false).catch(e => console.error('[Utmify Pix Pago Erro]:', e.message));
+      }
+
+      transactionsDb.set(txId, cached);
       return { status: mappedStatus };
     }
   } catch (e) {
@@ -169,19 +324,109 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Endpoint de teste da Utmify
+  if (pathname.endsWith('/utmify/test') && req.method === 'POST') {
+    const now = getUtcDateString();
+    const testOrder = {
+      orderId: 'TEST_' + Date.now(),
+      status: 'waiting_payment',
+      createdAt: now,
+      approvedDate: null,
+      amountCents: 12490,
+      customer: {
+        name: 'Cliente Teste Utmify',
+        email: 'teste@exemplo.com',
+        phone: '11999999999',
+        document: '05477464003',
+        ip: '127.0.0.1'
+      },
+      products: [
+        {
+          id: 'frigobar-73l',
+          name: 'Frigobar Mondial 73L',
+          planId: null,
+          planName: null,
+          quantity: 1,
+          priceInCents: 12490
+        }
+      ],
+      trackingParameters: {
+        src: null,
+        sck: null,
+        utm_source: 'tiktok',
+        utm_campaign: 'promo_frigobar',
+        utm_medium: 'cpc',
+        utm_content: 'video_01',
+        utm_term: null
+      }
+    };
+
+    // Teste 1: PIX Gerado
+    const r1 = await sendUtmifyOrder(testOrder, false);
+
+    // Teste 2: PIX Pago
+    testOrder.status = 'paid';
+    testOrder.approvedDate = now;
+    const r2 = await sendUtmifyOrder(testOrder, false);
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({
+      success: true,
+      message: 'Notificações de teste enviadas para a Utmify!',
+      pix_gerado_response: r1,
+      pix_pago_response: r2
+    }));
+    return;
+  }
+
   // Webhook FlevoPay
   if ((pathname.endsWith('/webhook/flevopay') || pathname.endsWith('/webhook/freepay')) && req.method === 'POST') {
     let webhookData = req.body;
-    if (typeof webhookData === 'string') webhookData = JSON.parse(webhookData);
+    if (typeof webhookData === 'string') {
+      try { webhookData = JSON.parse(webhookData); } catch(e){}
+    }
     if (!webhookData) {
       let raw = '';
       for await (const chunk of req) raw += chunk;
       try { webhookData = JSON.parse(raw || '{}'); } catch(e){ webhookData = {}; }
     }
     const txId = String(webhookData.transaction_id || webhookData.id || webhookData.external_id || '');
-    const status = (webhookData.status || '').toLowerCase();
-    if (txId && (status === 'approved' || status === 'paid' || status === 'completed')) {
-      transactionsDb.set(txId, { status: 'paid', updatedAt: Date.now() });
+    const rawStatus = (webhookData.status || webhookData.payment_status || '').toLowerCase();
+    if (txId && (rawStatus === 'approved' || rawStatus === 'paid' || rawStatus === 'completed')) {
+      const custData = (webhookData.customer_data && webhookData.customer_data.customer) || webhookData.customer || {};
+      const trackData = (webhookData.customer_data && webhookData.customer_data.tracking) || webhookData.tracking || {};
+
+      const cached = transactionsDb.get(txId) || {
+        orderId: txId,
+        createdAt: webhookData.created_at ? getUtcDateString(webhookData.created_at) : getUtcDateString(),
+        amountCents: webhookData.amount || 12490,
+        customer: {
+          name: custData.name,
+          email: custData.email,
+          phone: custData.phone,
+          document: custData.document,
+          ip: (webhookData.customer_data && webhookData.customer_data.api_metadata && webhookData.customer_data.api_metadata.ip) || '127.0.0.1'
+        },
+        trackingParameters: {
+          src: trackData.src || null,
+          sck: trackData.sck || null,
+          utm_source: trackData.utm_source || null,
+          utm_campaign: trackData.utm_campaign || null,
+          utm_medium: trackData.utm_medium || null,
+          utm_content: trackData.utm_content || null,
+          utm_term: trackData.utm_term || null
+        },
+        utmifyPaidSent: false
+      };
+
+      cached.status = 'paid';
+      if (!cached.utmifyPaidSent) {
+        cached.approvedDate = getUtcDateString();
+        cached.utmifyPaidSent = true;
+        sendUtmifyOrder(cached, false).catch(e => console.error('[Utmify Webhook Paid Erro]:', e.message));
+      }
+      transactionsDb.set(txId, cached);
     }
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
