@@ -14,9 +14,10 @@ const transactionsDb = new Map();
 const FAQ_REPLIES = {
   'entrega': 'Nosso prazo de entrega padrão é de 8 a 12 dias úteis com Frete Grátis, ou em até 5 dias úteis no Frete Expresso com rastreamento completo em tempo real!',
   'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo gateway oficial FlevoPay!',
-  'voltagem': 'Temos disponibilidade em 110V e 220V nas cores Preto e Branco.',
-  'cor': 'Temos disponibilidade nas cores Preto e Branco a pronta entrega.',
-  'garantia': 'O Frigobar Mondial 73L possui 10 anos de garantia no compressor e 12 meses de garantia total de fábrica!',
+  'voltagem': 'A Lavadora WAP WL 1800 está disponível nas voltagens 110V e 220V com motor de 1400W!',
+  'pressao': 'Possui pressão máxima de 1500 PSI (103 bar), perfeita para lavar carros, motos, muros, calçadas e remover limo!',
+  'potencia': 'Potência de 1400W e vazão máxima de 360 L/h, com economia de até 80% de água!',
+  'garantia': 'A WAP Lavadora WL 1800 possui 1 ano de garantia oficial de fábrica com assistência técnica em todo o Brasil!',
   'devolucao': 'Você possui até 30 dias após o recebimento para devolução gratuita garantida.'
 };
 
@@ -73,8 +74,7 @@ async function sendUtmifyOrder(orderData, isTest = false) {
     },
     products: orderData.products && orderData.products.length ? orderData.products : [
       {
-        id: 'frigobar-73l',
-        name: 'Frigobar Mondial 73L',
+        id: 'wap-wl-1800', name: 'WAP Lavadora WL 1800 1500 PSI',
         planId: null,
         planName: null,
         quantity: 1,
@@ -203,8 +203,7 @@ async function createFlevoPix(payload, clientIp) {
     },
     products: [
       {
-        id: 'frigobar-73l',
-        name: 'Frigobar Mondial 73L',
+        id: 'wap-wl-1800', name: 'WAP Lavadora WL 1800 1500 PSI',
         planId: null,
         planName: null,
         quantity: 1,
@@ -342,8 +341,7 @@ module.exports = async function handler(req, res) {
       },
       products: [
         {
-          id: 'frigobar-73l',
-          name: 'Frigobar Mondial 73L',
+          id: 'wap-wl-1800', name: 'WAP Lavadora WL 1800 1500 PSI',
           planId: null,
           planName: null,
           quantity: 1,
@@ -478,7 +476,7 @@ module.exports = async function handler(req, res) {
       payload = JSON.parse(raw || '{}');
     }
     const lastMsg = (payload.messages && payload.messages.length ? payload.messages[payload.messages.length - 1].content : '').toLowerCase();
-    let reply = 'Olá! Nosso Frigobar Mondial 73L está em super promoção com estoque limitado. Acompanha 10 anos de garantia no compressor e entrega rápida!';
+    let reply = 'Olá! Nossa Lavadora de Alta Pressão WAP WL 1800 (1400W, 1500 PSI) está com super desconto de Oferta Relâmpago e estoque limitado. Acompanha kit completo de acessórios e garantia oficial de 1 ano!';
     for (const [k, v] of Object.entries(FAQ_REPLIES)) {
       if (lastMsg.includes(k)) {
         reply = v;
