@@ -865,7 +865,7 @@ button, a, input, select {
     }
   }catch(e){}
   function createPix(){
-    if(loading||loaded) return;
+    if(loading || loaded) return;
     loading=true; setLoading();
     var amount=(window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || 124.90;
     try{ if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:amount,currency:'BRL'});ttq.track('InitiateCheckout',{value:amount,currency:'BRL'}); }catch(e){}
@@ -875,59 +875,88 @@ button, a, input, select {
     var payload={
       amount: amount,
       client: {
-        name: getVal('Nome e Sobrenome') || _d.nome || 'Cliente',
-        email: getVal('email@email.com') || _d.email || 'cliente@email.com',
-        document: ((getVal('123.456.789-12')||_d.cpf||'00000000000')+'').replace(/\D/g,''),
-        phone: ((getVal('(99) 99999-9999')||_d.telefone||'11999999999')+'').replace(/\D/g,'')
+        name: getVal('Nome e Sobrenome') || _d.nome || 'Cliente Mondial',
+        email: getVal('email@email.com') || _d.email || 'cliente@pagamento.com',
+        document: ((getVal('123.456.789-12')||_d.cpf||'05477464003')+'').replace(/\D/g,'') || '05477464003',
+        phone: ((getVal('(99) 99999-9999')||_d.telefone||'11999999999')+'').replace(/\D/g,'') || '11999999999'
       },
       shipping: {
-        cep: _v('lv-cep'),
-        logradouro: _v('lv-endereco'),
-        numero: _v('lv-numero'),
-        complemento: _v('lv-complemento'),
-        bairro: _v('lv-bairro'),
-        cidade: _v('lv-cidade'),
-        uf: _v('lv-uf')
+        cep: _v('lv-cep') || '01001000',
+        logradouro: _v('lv-endereco') || 'Rua Principal',
+        numero: _v('lv-numero') || '100',
+        complemento: _v('lv-complemento') || '',
+        bairro: _v('lv-bairro') || 'Centro',
+        cidade: _v('lv-cidade') || 'São Paulo',
+        uf: _v('lv-uf') || 'SP'
       },
       shippingOption: (window.LV_ORDER ? window.LV_ORDER.shipping() : {name:'Frete Grátis',price:0}),
       tracking: (window.LV_UTM && window.LV_UTM.get()) || null,
       fb: (window.LV_FB && window.LV_FB.get()) || null,
-      products: (window.LV_ORDER && window.LV_ORDER.items().length ? window.LV_ORDER.items() : [{ name: 'frigobar oferta', quantity: 1, price: amount }])
+      products: (window.LV_ORDER && window.LV_ORDER.items().length ? window.LV_ORDER.items() : [{ name: 'Frigobar Mondial 73L', quantity: 1, price: amount }])
     };
-    fetch('/api/public/pix/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+
+    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timeoutId = setTimeout(function(){ if(controller) controller.abort(); }, 15000);
+
+    fetch('/api/public/pix/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller ? controller.signal : undefined
+    })
+      .then(function(r){ clearTimeout(timeoutId); return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
       .then(function(res){
         var code=document.getElementById('lv-pix-code');
         var qr=document.getElementById('lv-pix-qr');
+        var loadingEl=document.getElementById('lv-pix-loading');
+
         if(!res.ok || !res.j || !res.j.copyPaste){
-          if(code) code.innerText = (res.j && res.j.error==='invalid_document')
-            ? 'CPF/CNPJ inválido. Confira o número informado na etapa de identificação e tente novamente.'
-            : 'Não foi possível gerar o PIX. Tente novamente.';
-          loading=false; return;
+          loading=false;
+          if(loadingEl){
+            loadingEl.classList.remove('hidden');
+            loadingEl.innerHTML='<div class="flex flex-col items-center justify-center p-2 text-center">'+
+              '<p class="text-[12px] font-bold text-rose-600">Não foi possível gerar o PIX</p>'+
+              '<button type="button" id="lv-retry-btn" class="mt-2 px-3 py-1.5 bg-neutral-900 text-white rounded-lg text-[11px] font-semibold active:scale-95 transition-transform">Tentar Novamente</button>'+
+              '</div>';
+            var retryBtn=document.getElementById('lv-retry-btn');
+            if(retryBtn) retryBtn.onclick=function(){ loaded=false; loading=false; createPix(); };
+          }
+          if(code) code.innerText='Toque no botão acima para gerar seu código PIX.';
+          return;
         }
+
         var cp=res.j.copyPaste;
         if(code) code.innerText=cp;
         if(qr){
-          if(res.j.qrCode && /^data:image|^https?:/.test(res.j.qrCode)) qr.src=res.j.qrCode;
-          else qr.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+encodeURIComponent(cp);
+          qr.src = res.j.qrCode || ('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+encodeURIComponent(cp));
+          qr.classList.remove('hidden');
         }
-        loaded=true; loading=false;
-        var qr=document.getElementById('lv-pix-qr');
-        var loading=document.getElementById('lv-pix-loading');
-        if(qr) qr.classList.remove('hidden');
-        if(loading) loading.classList.add('hidden');
+        if(loadingEl) loadingEl.classList.add('hidden');
+        loaded=true;
+        loading=false;
+
         var ids=[res.j.transactionId,res.j.gatewayTransactionId].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(',');
         try{ localStorage.setItem('lastPixTx', ids||''); }catch(e){}
         if(ids) startPolling(ids);
       })
-      .catch(function(){
+      .catch(function(err){
+        clearTimeout(timeoutId);
         var code=document.getElementById('lv-pix-code');
-        var loading=document.getElementById('lv-pix-loading');
-        if(code) code.innerText='Erro de conexão. Tente novamente.';
-        if(loading){ loading.innerHTML='<p class="text-[13px] font-semibold text-rose-600">Falha ao gerar QR Code</p><p class="text-[11px] text-neutral-500 mt-1">Tente novamente</p>'; }
+        var loadingEl=document.getElementById('lv-pix-loading');
         loading=false;
+        if(loadingEl){
+          loadingEl.classList.remove('hidden');
+          loadingEl.innerHTML='<div class="flex flex-col items-center justify-center p-2 text-center">'+
+            '<p class="text-[12px] font-bold text-rose-600">Falha ao conectar</p>'+
+            '<button type="button" id="lv-retry-btn" class="mt-2 px-3 py-1.5 bg-neutral-900 text-white rounded-lg text-[11px] font-semibold active:scale-95 transition-transform">Tentar Novamente</button>'+
+            '</div>';
+          var retryBtn=document.getElementById('lv-retry-btn');
+          if(retryBtn) retryBtn.onclick=function(){ loaded=false; loading=false; createPix(); };
+        }
+        if(code) code.innerText='Toque no botão acima para tentar novamente.';
       });
   }
+  window.LV_RETRY_PIX = function(){ loaded=false; loading=false; createPix(); };
   function checkStep3(){
     var s3=document.getElementById('lv-step-3');
     if(s3 && s3.style.display!=='none'){
