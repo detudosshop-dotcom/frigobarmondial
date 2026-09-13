@@ -1,19 +1,14 @@
 const QRCode = require('qrcode');
 
-const FREEPAY_API_URL = 'https://api.freepaybrasil.com';
-const DEFAULT_PUB = Buffer.from('ZnJlZXBheV9saXZlX3FwSzBhOWNzUFVzSzhnSU4yY0ZibDIzc0VFRldKUlcz', 'base64').toString('utf8');
-const DEFAULT_SEC = Buffer.from('c2tfbGl2ZV9tSGkxM3g3aTdyNnk0c2I2YUR5OFduMURWQWUxZGF4cw==', 'base64').toString('utf8');
+const FLEVOPAY_API_URL = 'https://app.flevopay.com.br';
+const FLEVOPAY_API_KEY = process.env.FLEVOPAY_API_KEY || '';
+const FLEVOPAY_POSTBACK_URL = process.env.FLEVOPAY_POSTBACK_URL || '';
 
-const FREEPAY_PUBLIC_KEY = process.env.FREEPAY_PUBLIC_KEY || DEFAULT_PUB;
-const FREEPAY_SECRET_KEY = process.env.FREEPAY_SECRET_KEY || DEFAULT_SEC;
-const FREEPAY_POSTBACK_URL = process.env.FREEPAY_POSTBACK_URL || '';
-
-const isFreePayConfigured = Boolean(FREEPAY_PUBLIC_KEY && FREEPAY_SECRET_KEY);
 const transactionsDb = new Map();
 
 const FAQ_REPLIES = {
   'entrega': 'Nosso prazo de entrega é de 1 a 7 dias úteis via Sedex ou Transportadora Expressa com rastreamento completo em tempo real!',
-  'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo nosso gateway oficial FreePay Brasil!',
+  'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo gateway oficial FlevoPay!',
   'voltagem': 'Temos disponibilidade em 110V e 220V nas cores Preto e Branco.',
   'cor': 'Temos disponibilidade nas cores Preto e Branco a pronta entrega.',
   'garantia': 'O Frigobar Mondial 73L possui 10 anos de garantia no compressor e 12 meses de garantia total de fábrica!',
@@ -30,112 +25,84 @@ function cleanDoc(doc) {
 
 function formatPhone(phone) {
   const digits = String(phone || '').replace(/\D/g, '');
-  if (!digits || digits.length < 10) return '+5511988887777';
-  if (digits.startsWith('55') && digits.length >= 12) return '+' + digits;
-  return '+55' + digits;
+  if (!digits || digits.length < 10) return '11999999999';
+  if (digits.startsWith('55') && digits.length >= 12) return digits.slice(2);
+  return digits;
 }
 
-async function createFreePayPix(payload, clientIp) {
+async function createFlevoPix(payload, clientIp) {
   const amountFloat = Number(payload.amount || 124.90);
   const amountCents = Math.max(100, Math.round(amountFloat * 100));
 
   const client = payload.client || {};
-  const shipping = payload.shipping || {};
-  const items = payload.products || payload.items || [{ name: 'Frigobar Mondial 73L', quantity: 1, price: amountFloat }];
   const docDigits = cleanDoc(client.document);
-  const shippingFeeCents = Math.round(Number(payload.shippingOption && payload.shippingOption.price ? payload.shippingOption.price : 0) * 100);
+  const phoneDigits = formatPhone(client.phone);
+  const tracking = payload.tracking || {};
+  const reference = 'REF_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
 
-  const freePayPayload = {
+  const flevoPayload = {
     amount: amountCents,
-    payment_method: 'pix',
-    pix: { expires_in_days: 1 },
+    description: 'Frigobar Mondial 73L',
+    reference: reference,
+    source: 'api_externa', // Ignora validação de productHash para integrações externas
     customer: {
       name: (client.name && client.name.trim().length >= 3) ? client.name.trim() : 'Cliente Mondial',
       email: (client.email && client.email.includes('@')) ? client.email.trim() : 'cliente@pagamento.com',
-      document: {
-        number: docDigits,
-        type: docDigits.length > 11 ? 'cnpj' : 'cpf'
-      },
-      phone: formatPhone(client.phone)
+      document: docDigits,
+      phone: phoneDigits
     },
-    items: items.map((it, idx) => ({
-      title: it.name || it.title || 'Frigobar Mondial 73L',
-      unit_price: Math.max(100, Math.round(Number(it.price || it.unit_price || amountFloat) * 100)),
-      quantity: Number(it.quantity || 1),
-      tangible: true,
-      external_ref: 'item_' + (idx + 1)
-    })),
-    shipping: {
-      fee: shippingFeeCents,
-      address: {
-        street: shipping.logradouro || shipping.street || 'Rua Principal',
-        street_number: shipping.numero || shipping.street_number || '100',
-        complement: shipping.complemento || shipping.complement || '',
-        zip_code: String(shipping.cep || shipping.zip_code || '01001000').replace(/\D/g, '') || '01001000',
-        neighborhood: shipping.bairro || shipping.neighborhood || 'Centro',
-        city: shipping.cidade || shipping.city || 'São Paulo',
-        state: shipping.uf || shipping.state || 'SP',
-        country: 'BR'
-      }
-    },
-    postback_url: FREEPAY_POSTBACK_URL || 'https://freepaybrasil.com',
-    metadata: {
-      origem: 'checkout_frigobar',
-      tracking: payload.tracking || null,
-      fb: payload.fb || null
-    },
-    ip: clientIp || '127.0.0.1'
+    postback_url: FLEVOPAY_POSTBACK_URL || '',
+    tracking: {
+      utm_source: tracking.utm_source || tracking.source || '',
+      utm_medium: tracking.utm_medium || '',
+      utm_campaign: tracking.utm_campaign || '',
+      utm_content: tracking.utm_content || '',
+      utm_term: tracking.utm_term || '',
+      src: tracking.src || '',
+      sck: tracking.sck || ''
+    }
   };
 
-  const authHeader = 'Basic ' + Buffer.from(FREEPAY_PUBLIC_KEY + ':' + FREEPAY_SECRET_KEY).toString('base64');
-  console.log('[FreePay Request] Amount:', amountCents, 'Customer:', freePayPayload.customer.name, 'Doc:', docDigits);
+  if (!FLEVOPAY_API_KEY) {
+    console.warn('[FlevoPay] FLEVOPAY_API_KEY ainda não configurada.');
+    throw new Error('Chave de API da FlevoPay não configurada. Informe sua Secret Key.');
+  }
 
-  const res = await fetch(FREEPAY_API_URL + '/v1/payment-transaction/create', {
+  console.log('[FlevoPay Request] Criando PIX no valor:', amountCents, 'centavos. Ref:', reference);
+
+  const res = await fetch(FLEVOPAY_API_URL + '/api/v1/transaction', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': authHeader
+      'X-API-Key': FLEVOPAY_API_KEY
     },
-    body: JSON.stringify(freePayPayload)
+    body: JSON.stringify(flevoPayload)
   });
 
   const resData = await res.json();
-  console.log('[FreePay Response] Status:', res.status, 'Success:', resData.success);
+  console.log('[FlevoPay Response] Status:', res.status, resData);
 
-  if (!res.ok) {
-    let errMsg = 'Erro ao gerar PIX na FreePay.';
-    if (resData && resData.errors) {
-      const errList = Object.values(resData.errors).flat();
-      if (errList.length) errMsg = errList.join(', ');
-    } else if (resData && resData.error_messages && resData.error_messages.length) {
-      errMsg = resData.error_messages.join(', ');
-    } else if (resData && resData.message) {
-      errMsg = resData.message;
-    }
-    console.error('[FreePay Erro]:', errMsg, JSON.stringify(resData));
+  if (!res.ok || resData.status === 'error' || resData.success === false) {
+    let errMsg = resData.message || resData.error || 'Erro ao gerar PIX na FlevoPay.';
     throw new Error(errMsg);
   }
 
-  const tx = resData.data || resData;
-  const pixObj = tx.pix || {};
-  const copyPaste = pixObj.qr_code || tx.qr_code || tx.pix_code || '';
-  const txId = String(tx.id || tx.transaction_id);
+  const copyPaste = resData.qr_code || resData.pix_code || '';
+  let qrCodeUrl = resData.qr_code_base64 || '';
 
-  // Generate QR Code data URL locally with high quality and zero network latency
-  let qrCodeUrl = '';
-  if (copyPaste) {
+  // Se a FlevoPay não retornou base64, geramos localmente com a lib qrcode
+  if (!qrCodeUrl && copyPaste) {
     try {
       qrCodeUrl = await QRCode.toDataURL(copyPaste, { margin: 1, width: 320 });
     } catch (e) {
-      console.error('Erro ao gerar QR Code local:', e.message);
-      qrCodeUrl = pixObj.url || ('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(copyPaste));
+      qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(copyPaste);
     }
-  } else if (pixObj.url) {
-    qrCodeUrl = pixObj.url;
   }
 
+  const txId = String(resData.transaction_id || resData.id || reference);
+
   transactionsDb.set(txId, {
-    status: (tx.status || 'PENDING').toLowerCase(),
+    status: (resData.status || 'pending').toLowerCase(),
     amount: amountFloat,
     createdAt: Date.now()
   });
@@ -149,33 +116,38 @@ async function createFreePayPix(payload, clientIp) {
   };
 }
 
-async function getFreePayPixStatus(txId) {
+async function getFlevoPixStatus(txId) {
   if (transactionsDb.has(txId)) {
     const cached = transactionsDb.get(txId);
     if (cached.status === 'paid') return { status: 'paid' };
   }
 
-  const authHeader = 'Basic ' + Buffer.from(FREEPAY_PUBLIC_KEY + ':' + FREEPAY_SECRET_KEY).toString('base64');
+  if (!FLEVOPAY_API_KEY) {
+    return { status: 'waiting_payment' };
+  }
+
   try {
-    const res = await fetch(FREEPAY_API_URL + '/v1/payment-transaction/info/' + encodeURIComponent(txId), {
-      headers: { 'Authorization': authHeader }
+    const res = await fetch(FLEVOPAY_API_URL + '/api/v1/query?action=get_transaction&id=' + encodeURIComponent(txId), {
+      headers: {
+        'X-API-Key': FLEVOPAY_API_KEY
+      }
     });
 
     if (res.ok) {
       const resJson = await res.json();
-      const txData = resJson.data || resJson;
-      const rawStatus = (txData.status || '').toUpperCase();
+      const rawStatus = (resJson.status || '').toLowerCase();
 
       let mappedStatus = 'waiting_payment';
-      if (rawStatus === 'PAID') mappedStatus = 'paid';
-      else if (rawStatus === 'EXPIRED') mappedStatus = 'expired';
-      else if (rawStatus === 'REFUSED' || rawStatus === 'FAILED') mappedStatus = 'failed';
+      if (rawStatus === 'approved' || rawStatus === 'paid' || rawStatus === 'completed') mappedStatus = 'paid';
+      else if (rawStatus === 'expired') mappedStatus = 'expired';
+      else if (rawStatus === 'failed' || rawStatus === 'refused') mappedStatus = 'failed';
+      else if (rawStatus === 'refunded') mappedStatus = 'refunded';
 
       transactionsDb.set(txId, { status: mappedStatus });
       return { status: mappedStatus };
     }
   } catch (e) {
-    console.error('Erro status FreePay:', e.message);
+    console.error('Erro status FlevoPay:', e.message);
   }
 
   if (transactionsDb.has(txId)) return transactionsDb.get(txId);
@@ -188,7 +160,7 @@ module.exports = async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key');
 
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
@@ -196,12 +168,18 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Webhook
-  if (pathname.endsWith('/webhook/freepay') && req.method === 'POST') {
-    const webhookData = req.body || {};
-    const txId = webhookData.Id || webhookData.id;
-    const status = (webhookData.Status || webhookData.status || '').toUpperCase();
-    if (txId && status === 'PAID') {
+  // Webhook FlevoPay
+  if ((pathname.endsWith('/webhook/flevopay') || pathname.endsWith('/webhook/freepay')) && req.method === 'POST') {
+    let webhookData = req.body;
+    if (typeof webhookData === 'string') webhookData = JSON.parse(webhookData);
+    if (!webhookData) {
+      let raw = '';
+      for await (const chunk of req) raw += chunk;
+      try { webhookData = JSON.parse(raw || '{}'); } catch(e){ webhookData = {}; }
+    }
+    const txId = String(webhookData.transaction_id || webhookData.id || webhookData.external_id || '');
+    const status = (webhookData.status || '').toLowerCase();
+    if (txId && (status === 'approved' || status === 'paid' || status === 'completed')) {
       transactionsDb.set(txId, { status: 'paid', updatedAt: Date.now() });
     }
     res.statusCode = 200;
@@ -210,7 +188,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Create PIX
+  // Create PIX (Checkout e Upsells)
   if ((pathname.endsWith('/pix/create') || pathname.endsWith('/pix2/create')) && req.method === 'POST') {
     try {
       let payload = req.body;
@@ -221,7 +199,7 @@ module.exports = async function handler(req, res) {
         payload = JSON.parse(raw || '{}');
       }
       const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-      const pixRes = await createFreePayPix(payload, clientIp);
+      const pixRes = await createFlevoPix(payload, clientIp);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(pixRes));
@@ -237,7 +215,7 @@ module.exports = async function handler(req, res) {
   if ((pathname.includes('/pix/status') || pathname.includes('/pix2/status')) && req.method === 'GET') {
     const id = parsedUrl.searchParams.get('id');
     const firstId = String(id || '').split(',')[0].trim();
-    const statusObj = await getFreePayPixStatus(firstId);
+    const statusObj = await getFlevoPixStatus(firstId);
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(statusObj));
