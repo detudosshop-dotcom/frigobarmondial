@@ -800,7 +800,7 @@ button, a, input, select {
       if(v.qtd===0){return;}
       var cor='WAP Lavadora de Alta Pressão WL 1800 ('+v.cores.join(', ')+', '+v.volt+')';
       try{localStorage.setItem('corSelecionada',cor);}catch(err){}
-      go('/pagamento?cor='+encodeURIComponent(cor)+'&voltagem='+encodeURIComponent(v.volt)+'&qtd='+encodeURIComponent(v.qtd));
+      go('/pagamento?produto=lavadora&cor='+encodeURIComponent(cor)+'&voltagem='+encodeURIComponent(v.volt)+'&qtd='+encodeURIComponent(v.qtd));
     });
     document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
     window.lvVariants=state;
@@ -1014,7 +1014,66 @@ button, a, input, select {
       <img src="/assets/wap/review-wap-06.jpg" alt="Bico regulável em detalhe" loading="lazy" decoding="async" width="96" height="96" class="w-24 h-24 rounded-lg object-cover shrink-0 bg-neutral-100 border border-neutral-200">
     </div>
   </article>
-</section><div class="h-2 bg-[color:var(--pann-muted)]"></div><section id="loja-inox" class="p-3 border-t border-[color:var(--pann-border)] scroll-mt-16"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><img src="/l5e/assets-v1/eadefcf4-ad9d-4ee4-89af-09fdb1f454ec/lojasrap-logo.webp" alt="Lojas RAP Online" class="rounded-full object-contain bg-white" style="height:44px;width:44px;box-shadow:0 0 0 1px var(--pann-border)"><div class="leading-tight"><div class="flex items-center gap-1.5"><span class="text-[15px] font-bold">Lojas RAP Online</span><svg width="17" height="17" viewBox="0 0 48 48"><polygon fill="hsl(211, 90%, 56%)" points="29.62,3 33.053,8.308 39.367,8.624 39.686,14.937 44.997,18.367 42.116,23.995 45,29.62 39.692,33.053 39.376,39.367 33.063,39.686 29.633,44.997 24.005,42.116 18.38,45 14.947,39.692 8.633,39.376 8.314,33.063 3.003,29.633 5.884,24.005 3,18.38 8.308,14.947 8.624,8.633 14.937,8.314 18.367,3.003 23.995,5.884"></polygon><polygon fill="#fff" points="21.396,31.255 14.899,24.76 17.021,22.639 21.428,27.046 30.996,17.772 33.084,19.926"></polygon></svg></div><div class="text-xs text-[color:var(--pann-muted-fg)]">4.8K vendido(s)</div></div></div><div class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-gradient-to-b from-white to-[hsl(45,60%,97%)]" style="border-color:hsla(38,70%,55%,0.45);box-shadow:0 1px 2px rgba(15,23,42,0.05)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"></path></svg><span class="text-[11.5px] font-semibold tracking-[0.01em] whitespace-nowrap" style="color:#8a5a09">50 anos de história</span></div></div></section><div class="h-2 bg-[color:var(--pann-muted)]"></div><section class="p-3 pt-4 pb-4">
+</section><div class="h-2 bg-[color:var(--pann-muted)]"></div><section id="loja-inox" class="p-3 border-t border-[color:var(--pann-border)] scroll-mt-16"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><img src="/l5e/assets-v1/eadefcf4-ad9d-4ee4-89af-09fdb1f454ec/lojasrap-logo.webp" alt="Lojas RAP Online" class="rounded-full object-contain bg-white" style="height:44px;width:44px;box-shadow:0 0 0 1px var(--pann-border)"><div class="leading-tight"><div class="flex items-center gap-1.5"><span class="text-[15px] font-bold">Lojas RAP Online</span><svg width="17" height="17" viewBox="0 0 48 48"><polygon fill="hsl(211, 90%, 56%)" points="29.62,3 33.053,8.308 39.367,8.624 39.686,14.937 44.997,18.367 42.116,23.995 45,29.62 39.692,33.053 39.376,39.367 33.063,39.686 29.633,44.997 24.005,42.116 18.38,45 14.947,39.692 8.633,39.376 8.314,33.063 3.003,29.633 5.884,24.005 3,18.38 8.308,14.947 8.624,8.633 14.937,8.314 18.367,3.003 23.995,5.884"></polygon><polygon fill="#fff" points="21.396,31.255 14.899,24.76 17.021,22.639 21.428,27.046 30.996,17.772 33.084,19.926"></polygon></svg></div><div class="text-xs text-[color:var(--pann-muted-fg)]">4.8K vendido(s)</div></div></div><div class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-gradient-to-b from-white to-[hsl(45,60%,97%)]" style="border-color:hsla(38,70%,55%,0.45);box-shadow:0 1px 2px rgba(15,23,42,0.05)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"></path></svg><span class="text-[11.5px] font-semibold tracking-[0.01em] whitespace-nowrap" style="color:#8a5a09">50 anos de história</span></div></div>
+  <!-- Catálogo de Produtos da Loja (Opção Loja) -->
+  <div class="mt-4 pt-3.5 border-t border-neutral-100" id="produtos-loja">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-4 bg-rose-600 rounded-full inline-block"></span>
+        <h3 class="text-[14px] font-bold text-neutral-900">Produtos em Destaque da Loja</h3>
+      </div>
+      <span class="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">2 Ofertas Ativas</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <!-- Produto 1: Frigobar Mondial (Clique para ver) -->
+      <a href="/" class="group rounded-xl border border-neutral-200 hover:border-rose-500 bg-white p-2.5 shadow-sm active:scale-[0.98] transition-all no-underline text-inherit flex flex-col justify-between relative">
+        <div>
+          <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
+            <img src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Frigobar Mondial 73L" class="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200">
+            <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-91%</span>
+          </div>
+          <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px] group-hover:text-rose-600 transition-colors">
+            Mondial Frigobar 73L FGB-01-B80 Preto
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-[14px] font-extrabold text-rose-600">R$ 124,90</span>
+            <span class="text-[10px] text-neutral-400 line-through">R$ 1.399</span>
+          </div>
+          <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+            <span>★ 4.9</span> · <span>Frete Grátis</span>
+          </div>
+        </div>
+        <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-neutral-900 to-neutral-800 shadow-sm group-hover:from-rose-600 group-hover:to-rose-500 transition-all">
+          Ver Frigobar Mondial →
+        </span>
+      </a>
+
+      <!-- Produto 2: WAP Lavadora WL 1800 (Produto Atual) -->
+      <div class="rounded-xl border-2 border-rose-500/40 bg-white p-2.5 shadow-sm relative flex flex-col justify-between">
+        <div>
+          <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
+            <img src="/assets/wap/wap-1.jpg" alt="WAP Lavadora WL 1800" class="w-full h-full object-contain p-1">
+            <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-79%</span>
+            <span class="absolute top-1 right-1 bg-neutral-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ATUAL</span>
+          </div>
+          <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px]">
+            WAP Lavadora de Alta Pressão 1500 PSI 1400W
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-[14px] font-extrabold text-rose-600">R$ 124,90</span>
+            <span class="text-[10px] text-neutral-400 line-through">R$ 589</span>
+          </div>
+          <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+            <span>★ 4.8</span> · <span>Frete Grátis</span>
+          </div>
+        </div>
+        <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
+          ✓ Visualizando agora
+        </span>
+      </div>
+    </div>
+  </div></section><div class="h-2 bg-[color:var(--pann-muted)]"></div><section class="p-3 pt-4 pb-4">
   <h2 class="text-base font-semibold mb-3">Sobre este produto</h2>
   
   <div class="mb-4">

@@ -14,10 +14,10 @@ const transactionsDb = new Map();
 const FAQ_REPLIES = {
   'entrega': 'Nosso prazo de entrega padrão é de 8 a 12 dias úteis com Frete Grátis, ou em até 5 dias úteis no Frete Expresso com rastreamento completo em tempo real!',
   'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo gateway oficial FlevoPay!',
-  'voltagem': 'A Lavadora WAP WL 1800 está disponível nas voltagens 110V e 220V com motor de 1400W!',
-  'pressao': 'Possui pressão máxima de 1500 PSI (103 bar), perfeita para lavar carros, motos, muros, calçadas e remover limo!',
-  'potencia': 'Potência de 1400W e vazão máxima de 360 L/h, com economia de até 80% de água!',
-  'garantia': 'A WAP Lavadora WL 1800 possui 1 ano de garantia oficial de fábrica com assistência técnica em todo o Brasil!',
+  'voltagem': 'Nossos produtos (Frigobar Mondial e Lavadora WAP) estão disponíveis nas voltagens 110V e 220V!',
+  'frigobar': 'O Frigobar Mondial possui 73 Litros de capacidade, gaveta de gelo, prateleiras ajustáveis e alta eficiência energética!',
+  'lavadora': 'A WAP Lavadora WL 1800 possui 1400W de potência, 1500 PSI de pressão e vazão máxima de 360 L/h, com economia de até 80% de água!',
+  'garantia': 'Garantia de fábrica com cobertura nacional e assistência técnica em todo o Brasil!',
   'devolucao': 'Você possui até 30 dias após o recebimento para devolução gratuita garantida.'
 };
 
@@ -128,13 +128,18 @@ async function createFlevoPix(payload, clientIp) {
   const tracking = payload.tracking || {};
   const reference = 'REF_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
 
+  const prodName = payload.description || (payload.products && payload.products[0] && payload.products[0].name) || 'Frigobar Mondial 73L';
+  const isWap = prodName.toLowerCase().includes('wap') || prodName.toLowerCase().includes('lavadora');
+  const fallbackClientName = isWap ? 'Cliente WAP' : 'Cliente Mondial';
+  const prodId = isWap ? 'wap-wl-1800' : 'frigobar-73l';
+
   const flevoPayload = {
     amount: amountCents,
-    description: 'Frigobar Mondial 73L',
+    description: prodName,
     reference: reference,
     source: 'api_externa',
     customer: {
-      name: (client.name && client.name.trim().length >= 3) ? client.name.trim() : 'Cliente Mondial',
+      name: (client.name && client.name.trim().length >= 3) ? client.name.trim() : fallbackClientName,
       email: (client.email && client.email.includes('@')) ? client.email.trim() : 'cliente@pagamento.com',
       document: docDigits,
       phone: phoneDigits
@@ -201,9 +206,17 @@ async function createFlevoPix(payload, clientIp) {
       document: flevoPayload.customer.document,
       ip: clientIp || '127.0.0.1'
     },
-    products: [
+        products: payload.products && payload.products.length ? payload.products.map(p => ({
+      id: p.id || prodId,
+      name: p.name || prodName,
+      planId: null,
+      planName: null,
+      quantity: p.quantity || 1,
+      priceInCents: p.price ? Math.round(Number(p.price) * 100) : (p.priceInCents || amountCents)
+    })) : [
       {
-        id: 'wap-wl-1800', name: 'WAP Lavadora WL 1800 1500 PSI',
+        id: prodId,
+        name: prodName,
         planId: null,
         planName: null,
         quantity: 1,
