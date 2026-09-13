@@ -407,7 +407,7 @@ button, a, input, select {
       var v=new URLSearchParams(location.search).get('voltagem')||localStorage.getItem('voltagemSelecionada')||'';
       v=v.trim();
       if(v==='110'||v==='110V'||v==='110v'||v.toLowerCase()==='110v')return'110V';
-      if(v==='127'||v==='127V'||v==='127v'||v.toLowerCase()==='127v')return'127V';
+      if(v==='127'||v==='127V'||v==='127v'||v.toLowerCase()==='127v')return'110V';
       if(v==='220'||v==='220V'||v==='220v'||v.toLowerCase()==='220v')return'220V';
       if(v)return v;
     }catch(e){}
@@ -1093,7 +1093,7 @@ button, a, input, select {
       var v=new URLSearchParams(location.search).get('voltagem')||localStorage.getItem('voltagemSelecionada')||'';
       v=v.trim();
       if(v==='110'||v==='110V'||v==='110v'||v.toLowerCase()==='110v')return'110V';
-      if(v==='127'||v==='127V'||v==='127v'||v.toLowerCase()==='127v')return'127V';
+      if(v==='127'||v==='127V'||v==='127v'||v.toLowerCase()==='127v')return'110V';
       if(v==='220'||v==='220V'||v==='220v'||v.toLowerCase()==='220v')return'220V';
       if(v)return v;
     }catch(e){}
@@ -1112,7 +1112,7 @@ button, a, input, select {
         if(warranty) box.insertBefore(meta, warranty);
         else box.appendChild(meta);
       }
-      meta.textContent='Voltagem: '+(volt||'127V');
+      meta.textContent='Voltagem: '+(volt||'110V');
     });
   }
   function boot(){
