@@ -378,8 +378,7 @@ button, a, input, select {
    Controla: quantidade, frete escolhido, order bumps e cor. Renderiza os resumos
    da etapa 2 e 3 (e o total do PIX) sempre a partir deste estado. ================ */
 (function(){
-  var UNIT = 124.90;
-    var isWap = false;
+  var isWap = false;
   try {
     var _sp = new URLSearchParams(location.search);
     var _p = (_sp.get('produto') || '').toLowerCase();
@@ -388,6 +387,8 @@ button, a, input, select {
       isWap = true;
     }
   } catch(e) {}
+
+  var UNIT = isWap ? 57.90 : 124.90;
 
   var BUMPS = isWap ? [
     {id:'shampoo',title:'Shampoo Concentrado WAP Lava Auto 1L (Alto Rendimento)',price:29.90,old:59.90,disc:50,img:'/assets/wap/wap-9.jpg',tag:'MAIS VENDIDO'},
@@ -766,8 +767,8 @@ button, a, input, select {
   function fireInitiateCheckout(){
     try{
       var t=document.getElementById('lv-pix-total');
-      var m=t?(t.innerText||'').replace(/[^0-9,]/g,'').replace(',', '.'):'124.90';
-      var v=parseFloat(m); if(isNaN(v)||v<=0) v=124.90;
+      var m=t?(t.innerText||'').replace(/[^0-9,]/g,'').replace(',', '.'):(isWap ? '57.90' : '124.90');
+      var v=parseFloat(m); if(isNaN(v)||v<=0) v=(isWap ? 57.90 : 124.90);
       if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:v,currency:'BRL'});ttq.track('InitiateCheckout',{value:v,currency:'BRL'});
     }catch(e){}
   }
@@ -897,7 +898,7 @@ button, a, input, select {
   function createPix(){
     if(loading || loaded) return;
     loading=true; setLoading();
-    var amount=(window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || 124.90;
+    var amount=(window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || (isWap ? 57.90 : 124.90);
     try{ if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:amount,currency:'BRL'});ttq.track('InitiateCheckout',{value:amount,currency:'BRL'}); }catch(e){}
     saveDados();
     var _d=loadDados();
@@ -1093,6 +1094,43 @@ button, a, input, select {
         el.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
       }
     });
+    // Ajusta textos de preço inicial no HTML para R$ 57,90
+    var subEl = document.getElementById('lv-pix-subtotal');
+    if(subEl) subEl.innerHTML = 'Rif (isWap) {
+    // Configura interface para WAP Lavadora WL 1800
+    document.querySelectorAll('img[src*="frigobar-1"],img[src*="cor-branco"]').forEach(function(img){
+      img.setAttribute('src', '/assets/wap/wap-1.jpg');
+      img.setAttribute('alt', 'WAP Lavadora de Alta Pressão WL 1800');
+    });
+    document.querySelectorAll('p,span,div,h3,h4').forEach(function(el){
+      if(el.children.length)return;
+      var t=(el.textContent||'').trim();
+      if(t.indexOf('Mondial Frigobar 73L') >= 0){
+        el.textContent = 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI';
+      }
+      if(t.indexOf('Garantia 1 ano + 10 anos') >= 0){
+        el.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
+      }
+    });
+  }nbsp;57,90';
+    var subLineEl = document.getElementById('lv-pix-subtotal-line');
+    if(subLineEl) subLineEl.innerHTML = 'Rif (isWap) {
+    // Configura interface para WAP Lavadora WL 1800
+    document.querySelectorAll('img[src*="frigobar-1"],img[src*="cor-branco"]').forEach(function(img){
+      img.setAttribute('src', '/assets/wap/wap-1.jpg');
+      img.setAttribute('alt', 'WAP Lavadora de Alta Pressão WL 1800');
+    });
+    document.querySelectorAll('p,span,div,h3,h4').forEach(function(el){
+      if(el.children.length)return;
+      var t=(el.textContent||'').trim();
+      if(t.indexOf('Mondial Frigobar 73L') >= 0){
+        el.textContent = 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI';
+      }
+      if(t.indexOf('Garantia 1 ano + 10 anos') >= 0){
+        el.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
+      }
+    });
+  }nbsp;57,90';
   }
 
   var MAP={preto:{img:'/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp',nome:'Preto'},branco:{img:'/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp',nome:'Branco'}};

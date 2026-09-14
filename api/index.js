@@ -119,7 +119,9 @@ async function sendUtmifyOrder(orderData, isTest = false) {
 }
 
 async function createFlevoPix(payload, clientIp) {
-  const amountFloat = Number(payload.amount || 124.90);
+  const isWapEarly = (payload.description || (payload.products && payload.products[0] && payload.products[0].name) || '').toLowerCase().includes('wap');
+  const defaultAmount = isWapEarly ? 57.90 : 124.90;
+  const amountFloat = Number(payload.amount || defaultAmount);
   const amountCents = Math.max(100, Math.round(amountFloat * 100));
 
   const client = payload.client || {};
