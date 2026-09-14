@@ -77,8 +77,49 @@ button, a, input, select {
 }
 
 </style>
+
+<script>
+window.detectIsWap = function() {
+  try {
+    var _sp = new URLSearchParams(location.search);
+    var _p = (_sp.get('produto') || '').toLowerCase();
+    if (_p.includes('lavadora') || _p.includes('wap')) return true;
+    if (_p.includes('frigobar')) return false;
+
+    var _c = (_sp.get('cor') || '').toLowerCase();
+    if (_c.includes('wap') || _c.includes('lavadora')) return true;
+    if (_c.includes('frigobar') || _c.includes('preto') || _c.includes('branco')) return false;
+
+    var _ps = (localStorage.getItem('produtoSelecionado') || '').toLowerCase();
+    if (_ps.includes('lavadora') || _ps.includes('wap')) return true;
+    if (_ps.includes('frigobar')) return false;
+
+    var _cs = (localStorage.getItem('corSelecionada') || '').toLowerCase();
+    if (_cs.includes('wap') || _cs.includes('lavadora')) return true;
+  } catch(e){}
+  return false;
+};
+window.isWap = window.detectIsWap();
+
+window.getChosenVoltage = function() {
+  try {
+    var v = new URLSearchParams(location.search).get('voltagem') || localStorage.getItem('voltagemSelecionada') || '';
+    v = String(v).trim();
+    if (/110|127/i.test(v)) return '110V';
+    if (/220/i.test(v)) return '220V';
+    if (v) return v;
+  } catch(e){}
+  return '110V';
+};
+</script>
+<style>
+  #lv-pix-loading.hidden { display: none !important; }
+  #lv-pix-qr.hidden { display: none !important; }
+  .lv-checkout-prod-volt { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #1e293b; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 2px 8px; border-radius: 6px; margin-top: 4px; }
+  .lv-checkout-prod-volt strong { color: #0f172a; font-weight: 800; }
+</style>
 </head><body>
-<div id="lv-step-1"><div class="min-h-screen bg-[#f5f5f5]"><header class="bg-white"><div class="max-w-[560px] mx-auto px-4 py-3 flex items-center justify-between"><span style="display:inline-flex;align-items:center;gap:6px"><img src="/l5e/assets-v1/80e494ed-fae5-4f46-b238-3d9527ffbc4d/tiktokshop-wordmark-new.jpg" alt="TikTok Shop" style="height:22px;width:auto;display:block;object-fit:contain"><img src="/l5e/assets-v1/01a0aa32-67e9-45cb-abd9-b885bb89a020/verified-badge.jpg" alt="Verificado" style="height:16px;width:16px;flex:none;display:block;object-fit:contain"></span><div class="flex items-center gap-1.5 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div class="text-[10px] font-bold leading-tight text-right"><div>PAGAMENTO</div><div>100% SEGURO</div></div></div></div></header><main class="max-w-[560px] mx-auto px-3 pt-4 pb-8 space-y-4"><section class="bg-white rounded-2xl shadow-sm p-4"><button class="w-full flex items-center justify-between"><div class="flex items-center gap-2"><h3 class="font-bold text-neutral-900 text-[15px]">Seu carrinho</h3><span class="w-5 h-5 rounded-full bg-neutral-900 text-white text-[11px] font-bold flex items-center justify-center">1</span></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up w-5 h-5 text-neutral-500" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></button><div class="mt-3 flex items-center gap-3"><img id="lv-checkout-prod-img" src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto" class="w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0"><div class="flex-1 min-w-0"><p id="lv-checkout-prod-title" class="text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p><p id="lv-checkout-prod-sub" class="text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p></div><div class="flex items-center gap-2 border border-neutral-200 rounded-full px-2 py-1"><button class="text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path></svg></button><span class="text-sm font-semibold text-neutral-900 min-w-[14px] text-center">1</span><button class="text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button></div></div><hr class="my-3 border-neutral-100"><div class="space-y-1.5 text-[13px]"><div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><span class="text-neutral-900">R$&nbsp;124,90</span></div><div class="flex justify-between"><span class="text-neutral-600">Frete (<!-- -->Frete Grátis<!-- -->)</span><span class="text-emerald-600 font-semibold">Grátis</span></div></div><hr class="my-3 border-neutral-100"><div class="flex justify-between items-center"><span class="text-[15px] font-semibold text-neutral-900">Total</span><span class="text-[15px] font-bold text-neutral-900">R$&nbsp;124,90</span></div></section><section class="bg-white rounded-2xl shadow-sm px-4 py-5"><div class="flex items-start justify-between"><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white">1</div><span class="mt-1.5 text-[12px] font-semibold text-neutral-900">Identificação</span></div><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">2</div><span class="mt-1.5 text-[12px] text-neutral-500">Entrega</span></div><div class="flex-1 flex flex-col items-center relative"><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">3</div><span class="mt-1.5 text-[12px] text-neutral-500">Pagamento</span></div></div></section><section class="bg-white rounded-2xl shadow-sm p-4 sm:p-5"><div class="space-y-4"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">E-mail</span><div class=""><input type="email" placeholder="email@email.com" class="tt-input" value="" style=""><label class="flex items-center gap-2 mt-2 text-[13px] text-neutral-500"><input type="checkbox" class="w-4 h-4 accent-neutral-900" style="">Não tenho e-mail</label></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Telefone</span><div class=""><input inputmode="tel" placeholder="(99) 99999-9999" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Nome completo</span><div class=""><input placeholder="Nome e Sobrenome" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">CPF/CNPJ</span><div class=""><input inputmode="numeric" placeholder="123.456.789-12" class="tt-input" value="" style=""></div></label><div class="rounded-xl border border-dashed border-neutral-300 p-4"><p class="text-[13px] font-semibold text-neutral-800 text-center mb-3">Usamos seus dados de forma 100%<br>segura para garantir a sua satisfação:</p><ul class="space-y-2 text-[13px] text-neutral-700"><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Enviar o seu comprovante de compra e pagamento;</span></li><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Ativar a sua garantia de devolução caso não fique satisfeito;</span></li><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Acompanhar o andamento do seu pedido;</span></li></ul></div><button class="tt-btn">IR PARA A ENTREGA</button></div></section><footer class="pt-6 pb-2 flex flex-col items-center gap-3"><div class="text-center"><p class="text-[13px] text-neutral-600 mb-2">Formas de pagamento</p><div class="flex items-center justify-center gap-2"><img src="/assets/pix-logo-EQU-5l0k.webp" alt="Pix" class="w-8 h-8 object-contain"></div></div><p class="text-[12px] text-neutral-500">© 2026 Tiktok Shop</p><div class="rounded-full bg-white shadow-sm py-2 px-4 flex items-center gap-2 text-[12px] text-neutral-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg> Ambiente seguro</div></footer></main><style>
+<div id="lv-step-1"><div class="min-h-screen bg-[#f5f5f5]"><header class="bg-white"><div class="max-w-[560px] mx-auto px-4 py-3 flex items-center justify-between"><span style="display:inline-flex;align-items:center;gap:6px"><img src="/l5e/assets-v1/80e494ed-fae5-4f46-b238-3d9527ffbc4d/tiktokshop-wordmark-new.jpg" alt="TikTok Shop" style="height:22px;width:auto;display:block;object-fit:contain"><img src="/l5e/assets-v1/01a0aa32-67e9-45cb-abd9-b885bb89a020/verified-badge.jpg" alt="Verificado" style="height:16px;width:16px;flex:none;display:block;object-fit:contain"></span><div class="flex items-center gap-1.5 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div class="text-[10px] font-bold leading-tight text-right"><div>PAGAMENTO</div><div>100% SEGURO</div></div></div></div></header><main class="max-w-[560px] mx-auto px-3 pt-4 pb-8 space-y-4"><section class="bg-white rounded-2xl shadow-sm p-4"><button class="w-full flex items-center justify-between"><div class="flex items-center gap-2"><h3 class="font-bold text-neutral-900 text-[15px]">Seu carrinho</h3><span class="w-5 h-5 rounded-full bg-neutral-900 text-white text-[11px] font-bold flex items-center justify-center">1</span></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up w-5 h-5 text-neutral-500" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></button><div class="mt-3 flex items-center gap-3"><img id="lv-checkout-prod-img" class="lv-checkout-prod-img w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0" src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto"><div class="flex-1 min-w-0"><p id="lv-checkout-prod-title" class="lv-checkout-prod-title text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p><p id="lv-checkout-prod-sub" class="lv-checkout-prod-sub text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p><div id="lv-checkout-prod-volt-1" class="lv-checkout-prod-volt">⚡ Voltagem: <strong class="lv-volt-val">110V</strong></div></div><div class="flex items-center gap-2 border border-neutral-200 rounded-full px-2 py-1"><button class="text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path></svg></button><span class="text-sm font-semibold text-neutral-900 min-w-[14px] text-center">1</span><button class="text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button></div></div><hr class="my-3 border-neutral-100"><div class="space-y-1.5 text-[13px]"><div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><span class="text-neutral-900">R$&nbsp;124,90</span></div><div class="flex justify-between"><span class="text-neutral-600">Frete (<!-- -->Frete Grátis<!-- -->)</span><span class="text-emerald-600 font-semibold">Grátis</span></div></div><hr class="my-3 border-neutral-100"><div class="flex justify-between items-center"><span class="text-[15px] font-semibold text-neutral-900">Total</span><span class="text-[15px] font-bold text-neutral-900">R$&nbsp;124,90</span></div></section><section class="bg-white rounded-2xl shadow-sm px-4 py-5"><div class="flex items-start justify-between"><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white">1</div><span class="mt-1.5 text-[12px] font-semibold text-neutral-900">Identificação</span></div><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">2</div><span class="mt-1.5 text-[12px] text-neutral-500">Entrega</span></div><div class="flex-1 flex flex-col items-center relative"><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">3</div><span class="mt-1.5 text-[12px] text-neutral-500">Pagamento</span></div></div></section><section class="bg-white rounded-2xl shadow-sm p-4 sm:p-5"><div class="space-y-4"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">E-mail</span><div class=""><input type="email" placeholder="email@email.com" class="tt-input" value="" style=""><label class="flex items-center gap-2 mt-2 text-[13px] text-neutral-500"><input type="checkbox" class="w-4 h-4 accent-neutral-900" style="">Não tenho e-mail</label></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Telefone</span><div class=""><input inputmode="tel" placeholder="(99) 99999-9999" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Nome completo</span><div class=""><input placeholder="Nome e Sobrenome" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">CPF/CNPJ</span><div class=""><input inputmode="numeric" placeholder="123.456.789-12" class="tt-input" value="" style=""></div></label><div class="rounded-xl border border-dashed border-neutral-300 p-4"><p class="text-[13px] font-semibold text-neutral-800 text-center mb-3">Usamos seus dados de forma 100%<br>segura para garantir a sua satisfação:</p><ul class="space-y-2 text-[13px] text-neutral-700"><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Enviar o seu comprovante de compra e pagamento;</span></li><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Ativar a sua garantia de devolução caso não fique satisfeito;</span></li><li class="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Acompanhar o andamento do seu pedido;</span></li></ul></div><button class="tt-btn">IR PARA A ENTREGA</button></div></section><footer class="pt-6 pb-2 flex flex-col items-center gap-3"><div class="text-center"><p class="text-[13px] text-neutral-600 mb-2">Formas de pagamento</p><div class="flex items-center justify-center gap-2"><img src="/assets/pix-logo-EQU-5l0k.webp" alt="Pix" class="w-8 h-8 object-contain"></div></div><p class="text-[12px] text-neutral-500">© 2026 Tiktok Shop</p><div class="rounded-full bg-white shadow-sm py-2 px-4 flex items-center gap-2 text-[12px] text-neutral-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg> Ambiente seguro</div></footer></main><style>
         .tt-input {
           width: 100%;
           height: 48px;
@@ -117,7 +158,7 @@ button, a, input, select {
         #lv-pix-loading.hidden { display: none !important; }
         #lv-pix-qr.hidden { display: none !important; }
       </style></div></div>
-<div id="lv-step-2" style="display:none"><div class="min-h-screen bg-[#f5f5f5]"><header class="bg-white"><div class="max-w-[560px] mx-auto px-4 py-3 flex items-center justify-between"><span style="display:inline-flex;align-items:center;gap:6px"><img src="/l5e/assets-v1/80e494ed-fae5-4f46-b238-3d9527ffbc4d/tiktokshop-wordmark-new.jpg" alt="TikTok Shop" style="height:22px;width:auto;display:block;object-fit:contain"><img src="/l5e/assets-v1/01a0aa32-67e9-45cb-abd9-b885bb89a020/verified-badge.jpg" alt="Verificado" style="height:16px;width:16px;flex:none;display:block;object-fit:contain"></span><div class="flex items-center gap-1.5 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div class="text-[10px] font-bold leading-tight text-right"><div>PAGAMENTO</div><div>100% SEGURO</div></div></div></div></header><main class="max-w-[560px] mx-auto px-3 pt-4 pb-8 space-y-4"><section class="bg-white rounded-2xl shadow-sm p-4"><button class="w-full flex items-center justify-between"><div class="flex items-center gap-2"><h3 class="font-bold text-neutral-900 text-[15px]">Seu carrinho</h3><span class="w-5 h-5 rounded-full bg-neutral-900 text-white text-[11px] font-bold flex items-center justify-center">1</span></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up w-5 h-5 text-neutral-500" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></button><div class="mt-3 flex items-center gap-3"><img src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto" class="w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0"><div class="flex-1 min-w-0"><p class="text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p><p class="text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p></div><div class="flex items-center gap-2 border border-neutral-200 rounded-full px-2 py-1"><button class="text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path></svg></button><span class="text-sm font-semibold text-neutral-900 min-w-[14px] text-center">1</span><button class="text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button></div></div><hr class="my-3 border-neutral-100"><div class="space-y-1.5 text-[13px]"><div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><span class="text-neutral-900">R$&nbsp;124,90</span></div><div class="flex justify-between"><span class="text-neutral-600">Frete (<!-- -->Frete Grátis<!-- -->)</span><span class="text-emerald-600 font-semibold">Grátis</span></div></div><hr class="my-3 border-neutral-100"><div class="flex justify-between items-center"><span class="text-[15px] font-semibold text-neutral-900">Total</span><span class="text-[15px] font-bold text-neutral-900">R$&nbsp;124,90</span></div></section><section class="bg-white rounded-2xl shadow-sm px-4 py-5"><div class="flex items-start justify-between"><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-900"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-4 h-4" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="mt-1.5 text-[12px] text-neutral-500">Identificação</span></div><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white">2</div><span class="mt-1.5 text-[12px] font-semibold text-neutral-900">Entrega</span></div><div class="flex-1 flex flex-col items-center relative"><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">3</div><span class="mt-1.5 text-[12px] text-neutral-500">Pagamento</span></div></div></section><section class="bg-white rounded-2xl shadow-sm p-4 sm:p-5"><div class="space-y-4"><div class="rounded-xl border border-neutral-200 p-2.5 sm:p-3"><div class="flex items-center gap-1.5 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-3.5 h-3.5 text-neutral-800" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg><h4 class="text-[13px] font-bold text-neutral-900">Escolha uma forma de entrega:</h4></div><div class="space-y-1.5"><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-emerald-500 bg-emerald-50/60"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-600"></span></span><img alt="Frete Grátis" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/full-logo.jpeg"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">Frete Grátis</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em 8 a 12 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-emerald-600">Grátis</div></button><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-neutral-200 bg-white"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-neutral-300"></span><img alt="JADLOG" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/jadlog-logo.jpeg"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">JADLOG</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em até 5 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-neutral-900">R$&nbsp;18,47</div></button><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-neutral-200 bg-white"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-neutral-300"></span><img alt="SEDEX Expresso" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/sedex-logo.png"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">SEDEX 12</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em até 5 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-neutral-900">R$&nbsp;33,40</div></button></div></div><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">CEP</span><div class=""><div class="relative"><input id="lv-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" class="tt-input" value="" style=""><span id="lv-cep-status" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-neutral-400"></span></div></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Endereço</span><div class=""><input id="lv-endereco" placeholder="Rua, avenida..." class="tt-input" value="" style=""></div></label><div class="grid grid-cols-2 gap-3"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Número</span><div class=""><input id="lv-numero" placeholder="Nº" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Complemento</span><div class=""><input id="lv-complemento" placeholder="Apto, bloco..." class="tt-input" value="" style=""></div></label></div><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Bairro</span><div class=""><input id="lv-bairro" class="tt-input" value="" style=""></div></label><div class="grid grid-cols-[1fr_88px] gap-3"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Cidade</span><div class=""><input id="lv-cidade" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">UF</span><div class=""><input id="lv-uf" maxlength="2" class="tt-input" value="" style=""></div></label></div><div class="rounded-xl bg-emerald-50 border border-emerald-100 p-3 flex items-start gap-2 text-[13px] text-emerald-800"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 mt-0.5 shrink-0" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div id="lv-frete-card-text"><strong>Frete Grátis</strong> — Chegará entre 18 a 24 de agosto.</div></div><div class="flex flex-col gap-2"><button class="tt-btn">IR PARA O PAGAMENTO</button><button class="text-[13px] text-neutral-500 h-10">Voltar</button></div></div></section><footer class="pt-6 pb-2 flex flex-col items-center gap-3"><div class="text-center"><p class="text-[13px] text-neutral-600 mb-2">Formas de pagamento</p><div class="flex items-center justify-center gap-2"><img src="/assets/pix-logo-EQU-5l0k.webp" alt="Pix" class="w-8 h-8 object-contain"></div></div><p class="text-[12px] text-neutral-500">© 2026 Tiktok Shop</p><div class="rounded-full bg-white shadow-sm py-2 px-4 flex items-center gap-2 text-[12px] text-neutral-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg> Ambiente seguro</div></footer></main><style>
+<div id="lv-step-2" style="display:none"><div class="min-h-screen bg-[#f5f5f5]"><header class="bg-white"><div class="max-w-[560px] mx-auto px-4 py-3 flex items-center justify-between"><span style="display:inline-flex;align-items:center;gap:6px"><img src="/l5e/assets-v1/80e494ed-fae5-4f46-b238-3d9527ffbc4d/tiktokshop-wordmark-new.jpg" alt="TikTok Shop" style="height:22px;width:auto;display:block;object-fit:contain"><img src="/l5e/assets-v1/01a0aa32-67e9-45cb-abd9-b885bb89a020/verified-badge.jpg" alt="Verificado" style="height:16px;width:16px;flex:none;display:block;object-fit:contain"></span><div class="flex items-center gap-1.5 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div class="text-[10px] font-bold leading-tight text-right"><div>PAGAMENTO</div><div>100% SEGURO</div></div></div></div></header><main class="max-w-[560px] mx-auto px-3 pt-4 pb-8 space-y-4"><section class="bg-white rounded-2xl shadow-sm p-4"><button class="w-full flex items-center justify-between"><div class="flex items-center gap-2"><h3 class="font-bold text-neutral-900 text-[15px]">Seu carrinho</h3><span class="w-5 h-5 rounded-full bg-neutral-900 text-white text-[11px] font-bold flex items-center justify-center">1</span></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up w-5 h-5 text-neutral-500" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></button><div class="mt-3 flex items-center gap-3"><img id="lv-checkout-prod-img-2" class="lv-checkout-prod-img w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0" src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto"><div class="flex-1 min-w-0"><p id="lv-checkout-prod-title-2" class="lv-checkout-prod-title text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p><p id="lv-checkout-prod-sub-2" class="lv-checkout-prod-sub text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p><div id="lv-checkout-prod-volt-2" class="lv-checkout-prod-volt">⚡ Voltagem: <strong class="lv-volt-val">110V</strong></div></div><div class="flex items-center gap-2 border border-neutral-200 rounded-full px-2 py-1"><button class="text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path></svg></button><span class="text-sm font-semibold text-neutral-900 min-w-[14px] text-center">1</span><button class="text-emerald-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-3.5 h-3.5" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button></div></div><hr class="my-3 border-neutral-100"><div class="space-y-1.5 text-[13px]"><div class="flex justify-between"><span class="text-neutral-600">Subtotal</span><span class="text-neutral-900">R$&nbsp;124,90</span></div><div class="flex justify-between"><span class="text-neutral-600">Frete (<!-- -->Frete Grátis<!-- -->)</span><span class="text-emerald-600 font-semibold">Grátis</span></div></div><hr class="my-3 border-neutral-100"><div class="flex justify-between items-center"><span class="text-[15px] font-semibold text-neutral-900">Total</span><span class="text-[15px] font-bold text-neutral-900">R$&nbsp;124,90</span></div></section><section class="bg-white rounded-2xl shadow-sm px-4 py-5"><div class="flex items-start justify-between"><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-900"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-4 h-4" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="mt-1.5 text-[12px] text-neutral-500">Identificação</span></div><div class="flex-1 flex flex-col items-center relative"><div class="absolute top-3.5 left-1/2 w-full h-px bg-neutral-200"></div><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-900 text-white">2</div><span class="mt-1.5 text-[12px] font-semibold text-neutral-900">Entrega</span></div><div class="flex-1 flex flex-col items-center relative"><div class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-100 text-neutral-400">3</div><span class="mt-1.5 text-[12px] text-neutral-500">Pagamento</span></div></div></section><section class="bg-white rounded-2xl shadow-sm p-4 sm:p-5"><div class="space-y-4"><div class="rounded-xl border border-neutral-200 p-2.5 sm:p-3"><div class="flex items-center gap-1.5 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-3.5 h-3.5 text-neutral-800" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg><h4 class="text-[13px] font-bold text-neutral-900">Escolha uma forma de entrega:</h4></div><div class="space-y-1.5"><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-emerald-500 bg-emerald-50/60"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-600"></span></span><img alt="Frete Grátis" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/full-logo.jpeg"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">Frete Grátis</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em 8 a 12 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-emerald-600">Grátis</div></button><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-neutral-200 bg-white"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-neutral-300"></span><img alt="JADLOG" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/jadlog-logo.jpeg"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">JADLOG</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em até 5 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-neutral-900">R$&nbsp;18,47</div></button><button type="button" class="w-full flex items-center gap-2.5 rounded-lg border-2 p-2.5 text-left transition border-neutral-200 bg-white"><span class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-neutral-300"></span><img alt="SEDEX Expresso" class="h-5 w-12 object-contain shrink-0" src="/assets/ship/sedex-logo.png"><div class="flex-1 min-w-0"><div class="text-[13px] font-bold text-neutral-900 leading-tight">SEDEX 12</div><div class="text-[11px] text-neutral-500 leading-tight mt-0">Entrega em até 5 dias úteis</div></div><div class="text-[12px] font-bold shrink-0 text-neutral-900">R$&nbsp;33,40</div></button></div></div><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">CEP</span><div class=""><div class="relative"><input id="lv-cep" inputmode="numeric" maxlength="9" placeholder="00000-000" class="tt-input" value="" style=""><span id="lv-cep-status" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-neutral-400"></span></div></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Endereço</span><div class=""><input id="lv-endereco" placeholder="Rua, avenida..." class="tt-input" value="" style=""></div></label><div class="grid grid-cols-2 gap-3"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Número</span><div class=""><input id="lv-numero" placeholder="Nº" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Complemento</span><div class=""><input id="lv-complemento" placeholder="Apto, bloco..." class="tt-input" value="" style=""></div></label></div><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Bairro</span><div class=""><input id="lv-bairro" class="tt-input" value="" style=""></div></label><div class="grid grid-cols-[1fr_88px] gap-3"><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">Cidade</span><div class=""><input id="lv-cidade" class="tt-input" value="" style=""></div></label><label class="block"><span class="block text-[13px] font-medium text-neutral-800 mb-1.5">UF</span><div class=""><input id="lv-uf" maxlength="2" class="tt-input" value="" style=""></div></label></div><div class="rounded-xl bg-emerald-50 border border-emerald-100 p-3 flex items-start gap-2 text-[13px] text-emerald-800"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 mt-0.5 shrink-0" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div id="lv-frete-card-text"><strong>Frete Grátis</strong> — Chegará entre 18 a 24 de agosto.</div></div><div class="flex flex-col gap-2"><button class="tt-btn">IR PARA O PAGAMENTO</button><button class="text-[13px] text-neutral-500 h-10">Voltar</button></div></div></section><footer class="pt-6 pb-2 flex flex-col items-center gap-3"><div class="text-center"><p class="text-[13px] text-neutral-600 mb-2">Formas de pagamento</p><div class="flex items-center justify-center gap-2"><img src="/assets/pix-logo-EQU-5l0k.webp" alt="Pix" class="w-8 h-8 object-contain"></div></div><p class="text-[12px] text-neutral-500">© 2026 Tiktok Shop</p><div class="rounded-full bg-white shadow-sm py-2 px-4 flex items-center gap-2 text-[12px] text-neutral-700"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check w-4 h-4 text-emerald-500" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg> Ambiente seguro</div></footer></main><style>
         .tt-input {
           width: 100%;
           height: 48px;
@@ -178,10 +219,11 @@ button, a, input, select {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-500"><path d="m18 15-6-6-6 6"></path></svg>
         </div>
         <div class="mt-3 flex items-center gap-3">
-          <img src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto" class="w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0">
+          <img id="lv-checkout-prod-img-3" class="lv-checkout-prod-img w-12 h-12 rounded-md object-cover bg-neutral-100 shrink-0" src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Produto">
           <div class="flex-1 min-w-0">
-            <p class="text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p>
-            <p class="text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p>
+            <p id="lv-checkout-prod-title-3" class="lv-checkout-prod-title text-[13px] font-semibold text-neutral-900 leading-tight">Mondial Frigobar 73L FGB-01-B80 Preto</p>
+            <p id="lv-checkout-prod-sub-3" class="lv-checkout-prod-sub text-[11px] text-neutral-500 mt-0.5">Garantia 1 ano + 10 anos no compressor</p>
+            <div id="lv-checkout-prod-volt-3" class="lv-checkout-prod-volt">⚡ Voltagem: <strong class="lv-volt-val">110V</strong></div>
           </div>
           <div class="text-[13px] font-bold text-neutral-900" id="lv-pix-subtotal">R$&nbsp;124,90</div>
         </div>
@@ -331,6 +373,14 @@ button, a, input, select {
   function show(n){
     for(var i=1;i<=3;i++){ var el=document.getElementById('lv-step-'+i); if(el) el.style.display = (i===n?'':'none'); }
     window.scrollTo(0,0);
+    if(window.LV_ORDER && window.LV_ORDER.render) {
+      try { window.LV_ORDER.render(); } catch(e){}
+    }
+    if(n === 3) {
+      if(typeof window.LV_CREATE_PIX === 'function') {
+        window.LV_CREATE_PIX();
+      }
+    }
   }
   function bind(){
     document.querySelectorAll('button').forEach(function(b){
@@ -348,7 +398,7 @@ button, a, input, select {
         try{ localStorage.setItem('dadosPessoais', JSON.stringify({nome:nome.trim(),email:email.trim(),cpf:cpf,telefone:tel})); }catch(_e){}
         show(2);
       }); }
-      if(t==='IR PARA O PAGAMENTO' && !b.dataset.lvw){ b.dataset.lvw='1'; b.addEventListener('click', function(e){ e.preventDefault(); show(3); }); }
+      if(t==='IR PARA O PAGAMENTO' && !b.dataset.lvw){ b.dataset.lvw='1'; b.addEventListener('click', function(e){ e.preventDefault(); show(3); if(typeof window.LV_CREATE_PIX === 'function') window.LV_CREATE_PIX(); }); }
       if(t==='VOLTAR' && !b.dataset.lvw){
         b.dataset.lvw='1';
         b.addEventListener('click', function(e){
@@ -378,16 +428,7 @@ button, a, input, select {
    Controla: quantidade, frete escolhido, order bumps e cor. Renderiza os resumos
    da etapa 2 e 3 (e o total do PIX) sempre a partir deste estado. ================ */
 (function(){
-  var isWap = false;
-  try {
-    var _sp = new URLSearchParams(location.search);
-    var _p = (_sp.get('produto') || '').toLowerCase();
-    var _c = (_sp.get('cor') || localStorage.getItem('corSelecionada') || '').toLowerCase();
-    var _prodSaved = (localStorage.getItem('produtoSelecionado') || '').toLowerCase();
-    if (_p.includes('lavadora') || _p.includes('wap') || _c.includes('wap') || _c.includes('lavadora') || _prodSaved.includes('lavadora') || _prodSaved.includes('wap')) {
-      isWap = true;
-    }
-  } catch(e) {}
+  var isWap = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : false;
 
   var UNIT = isWap ? 57.90 : 124.90;
 
@@ -589,11 +630,36 @@ button, a, input, select {
   }
 
   var raf=null, rendering=false, mo=null;
+  function updateProductCards(){
+    var isW = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : isWap;
+    var volt = (typeof window.getChosenVoltage === 'function') ? window.getChosenVoltage() : (voltagemNome() || '110V');
+    var cor = corNome();
+
+    var title = isW ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' : ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto'));
+    var img = isW ? '/assets/wap/wap-1.jpg' : ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp');
+    var sub = isW ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' : 'Garantia 1 ano + 10 anos no compressor';
+
+    document.querySelectorAll('.lv-checkout-prod-img, #lv-checkout-prod-img, #lv-checkout-prod-img-2, #lv-checkout-prod-img-3').forEach(function(el){
+      if(!el.src || (!el.src.endsWith(img) && el.src !== location.origin + img)) el.src = img;
+      el.alt = title;
+    });
+    document.querySelectorAll('.lv-checkout-prod-title, #lv-checkout-prod-title, #lv-checkout-prod-title-2, #lv-checkout-prod-title-3').forEach(function(el){
+      el.textContent = title;
+    });
+    document.querySelectorAll('.lv-checkout-prod-sub, #lv-checkout-prod-sub, #lv-checkout-prod-sub-2, #lv-checkout-prod-sub-3').forEach(function(el){
+      el.textContent = sub;
+    });
+    document.querySelectorAll('.lv-checkout-prod-volt, #lv-checkout-prod-volt-1, #lv-checkout-prod-volt-2, #lv-checkout-prod-volt-3').forEach(function(el){
+      el.innerHTML = '⚡ Voltagem: <strong class="lv-volt-val">' + volt + '</strong>';
+    });
+  }
+
   function renderNow(){
     if(rendering) return;
     rendering=true;
     if(mo) mo.disconnect();
     try{
+      updateProductCards();
       renderCartSummary(document.getElementById('lv-step-1'));
       renderCartSummary(document.getElementById('lv-step-2'));
       renderFreteCard();
@@ -764,6 +830,7 @@ button, a, input, select {
 <script>
 (function(){
   var loaded=false, loading=false;
+  var isWap = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : false;
   // Dispara InitiateCheckout assim que a página de pagamento é aberta
   function fireInitiateCheckout(){
     try{
@@ -783,8 +850,8 @@ button, a, input, select {
     var qr=document.getElementById('lv-pix-qr');
     var loading=document.getElementById('lv-pix-loading');
     if(code) code.innerText='Gerando código PIX...';
-    if(qr){ qr.src=''; qr.classList.add('hidden'); }
-    if(loading) loading.classList.remove('hidden');
+    if(qr){ qr.src=''; qr.style.display='none'; qr.classList.add('hidden'); }
+    if(loading){ loading.style.display='flex'; loading.classList.remove('hidden'); }
   }
   function getAmount(){
     var t=document.getElementById('lv-pix-total');
@@ -962,9 +1029,13 @@ button, a, input, select {
         if(code) code.innerText=cp;
         if(qr){
           qr.src = res.j.qrCode || ('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data='+encodeURIComponent(cp));
+          qr.style.display='block';
           qr.classList.remove('hidden');
         }
-        if(loadingEl) loadingEl.classList.add('hidden');
+        if(loadingEl){
+          loadingEl.style.display='none';
+          loadingEl.classList.add('hidden');
+        }
         loaded=true;
         loading=false;
 
@@ -989,7 +1060,11 @@ button, a, input, select {
         if(code) code.innerText='Toque no botão acima para tentar novamente.';
       });
   }
-  window.LV_RETRY_PIX = function(){ loaded=false; loading=false; createPix(); };
+  window.LV_CREATE_PIX = function(force){
+    if(force){ loaded=false; loading=false; }
+    createPix();
+  };
+  window.LV_RETRY_PIX = function(){ window.LV_CREATE_PIX(true); };
   function checkStep3(){
     var s3=document.getElementById('lv-step-3');
     if(s3 && s3.style.display!=='none'){
@@ -1085,6 +1160,34 @@ button, a, input, select {
   var isWap = detectIsWap();
 
   function applyProductUI(){
+    var isW = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : isWap;
+    var volt = (typeof window.getChosenVoltage === 'function') ? window.getChosenVoltage() : (voltagemNome() || '110V');
+    var cor = (typeof window.LV_COR === 'function') ? window.LV_COR() : '';
+
+    var title = isW ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' : ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto'));
+    var img = isW ? '/assets/wap/wap-1.jpg' : ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp');
+    var sub = isW ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' : 'Garantia 1 ano + 10 anos no compressor';
+
+    // Atualiza todos os elementos de imagem, título, subtítulo e voltagem nas etapas 1, 2 e 3
+    document.querySelectorAll('.lv-checkout-prod-img, #lv-checkout-prod-img, #lv-checkout-prod-img-2, #lv-checkout-prod-img-3').forEach(function(el){
+      if(!el.src || (!el.src.endsWith(img) && el.src !== location.origin + img)) el.src = img;
+      el.alt = title;
+    });
+    document.querySelectorAll('.lv-checkout-prod-title, #lv-checkout-prod-title, #lv-checkout-prod-title-2, #lv-checkout-prod-title-3').forEach(function(el){
+      el.textContent = title;
+    });
+    document.querySelectorAll('.lv-checkout-prod-sub, #lv-checkout-prod-sub, #lv-checkout-prod-sub-2, #lv-checkout-prod-sub-3').forEach(function(el){
+      el.textContent = sub;
+    });
+    document.querySelectorAll('.lv-checkout-prod-volt, #lv-checkout-prod-volt-1, #lv-checkout-prod-volt-2, #lv-checkout-prod-volt-3').forEach(function(el){
+      el.innerHTML = '⚡ Voltagem: <strong class="lv-volt-val">' + volt + '</strong>';
+    });
+
+    var subtotalEl = document.getElementById('lv-pix-subtotal');
+    var subLineEl = document.getElementById('lv-pix-subtotal-line');
+    if (isW) {
+      if (subtotalEl && (!subtotalEl.textContent || subtotalEl.textContent.indexOf('124') >= 0)) {
+        subtotalEl.innerHTML = 'R  function applyProductUI(){
     var imgEl = document.getElementById('lv-checkout-prod-img');
     var titleEl = document.getElementById('lv-checkout-prod-title');
     var subEl = document.getElementById('lv-checkout-prod-sub');
@@ -1135,6 +1238,65 @@ button, a, input, select {
         if (titleEl) {
           titleEl.textContent = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
         }
+      }
+    }
+  }nbsp;57,90';
+      }
+      if (subLineEl && (!subLineEl.textContent || subLineEl.textContent.indexOf('124') >= 0)) {
+        subLineEl.innerHTML = 'R  function applyProductUI(){
+    var imgEl = document.getElementById('lv-checkout-prod-img');
+    var titleEl = document.getElementById('lv-checkout-prod-title');
+    var subEl = document.getElementById('lv-checkout-prod-sub');
+    var subtotalEl = document.getElementById('lv-pix-subtotal');
+    var subLineEl = document.getElementById('lv-pix-subtotal-line');
+
+    if (isWap) {
+      if (imgEl) {
+        imgEl.src = '/assets/wap/wap-1.jpg';
+        imgEl.alt = 'WAP Lavadora de Alta Pressão WL 1800';
+      }
+      if (titleEl) {
+        titleEl.textContent = 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI';
+      }
+      if (subEl) {
+        subEl.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
+      }
+      if (subtotalEl && (!subtotalEl.textContent || subtotalEl.textContent.indexOf('124') >= 0)) {
+        subtotalEl.innerHTML = 'R$&nbsp;57,90';
+      }
+      if (subLineEl && (!subLineEl.textContent || subLineEl.textContent.indexOf('124') >= 0)) {
+        subLineEl.innerHTML = 'R$&nbsp;57,90';
+      }
+    } else {
+      // Mondial Frigobar
+      var MAP = {
+        preto: { img: '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp', nome: 'Preto' },
+        branco: { img: '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp', nome: 'Branco' }
+      };
+      function norm(v){
+        v = (v || '').toLowerCase();
+        var hasPreto = v.indexOf('preta') >= 0 || v.indexOf('preto') >= 0;
+        var hasBranco = v.indexOf('branco') >= 0 || v.indexOf('branca') >= 0;
+        if(hasPreto && hasBranco) return 'preto+branco';
+        if(hasPreto) return 'preto';
+        if(hasBranco) return 'branco';
+        return null;
+      }
+      var q = null;
+      try { q = new URLSearchParams(location.search).get('cor'); } catch(e){}
+      var c = norm(q);
+      if(!c){ try { c = norm(localStorage.getItem('corSelecionada')); } catch(e){} }
+      if (c && MAP[c]) {
+        if (imgEl) {
+          imgEl.src = MAP[c].img;
+          imgEl.alt = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
+        }
+        if (titleEl) {
+          titleEl.textContent = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
+        }
+      }
+    }
+  }nbsp;57,90';
       }
     }
   }
