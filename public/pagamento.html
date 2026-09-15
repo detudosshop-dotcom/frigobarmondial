@@ -79,36 +79,44 @@ button, a, input, select {
 </style>
 
 <script>
-window.detectIsWap = function() {
+window.detectProduct = function() {
   try {
     var _sp = new URLSearchParams(location.search);
     var _p = (_sp.get('produto') || '').toLowerCase();
-    if (_p.includes('lavadora') || _p.includes('wap')) return true;
-    if (_p.includes('frigobar')) return false;
+    if (_p.includes('projetor') || _p.includes('hy320')) return 'projetor';
+    if (_p.includes('lavadora') || _p.includes('wap')) return 'lavadora';
+    if (_p.includes('frigobar')) return 'frigobar';
 
     var _c = (_sp.get('cor') || '').toLowerCase();
-    if (_c.includes('wap') || _c.includes('lavadora')) return true;
-    if (_c.includes('frigobar') || _c.includes('preto') || _c.includes('branco')) return false;
+    if (_c.includes('projetor') || _c.includes('hy320')) return 'projetor';
+    if (_c.includes('wap') || _c.includes('lavadora')) return 'lavadora';
+    if (_c.includes('frigobar') || _c.includes('preto') || _c.includes('branco')) return 'frigobar';
 
     var _ps = (localStorage.getItem('produtoSelecionado') || '').toLowerCase();
-    if (_ps.includes('lavadora') || _ps.includes('wap')) return true;
-    if (_ps.includes('frigobar')) return false;
+    if (_ps.includes('projetor') || _ps.includes('hy320')) return 'projetor';
+    if (_ps.includes('lavadora') || _ps.includes('wap')) return 'lavadora';
+    if (_ps.includes('frigobar')) return 'frigobar';
 
     var _cs = (localStorage.getItem('corSelecionada') || '').toLowerCase();
-    if (_cs.includes('wap') || _cs.includes('lavadora')) return true;
+    if (_cs.includes('projetor') || _cs.includes('hy320')) return 'projetor';
+    if (_cs.includes('wap') || _cs.includes('lavadora')) return 'lavadora';
   } catch(e){}
-  return false;
+  return 'frigobar';
 };
+window.detectIsWap = function() { return window.detectProduct() === 'lavadora'; };
+window.detectIsProjetor = function() { return window.detectProduct() === 'projetor'; };
 window.isWap = window.detectIsWap();
 
 window.getChosenVoltage = function() {
   try {
     var v = new URLSearchParams(location.search).get('voltagem') || localStorage.getItem('voltagemSelecionada') || '';
     v = String(v).trim();
+    if (/bivolt/i.test(v)) return 'Bivolt (110V/220V)';
     if (/110|127/i.test(v)) return '110V';
     if (/220/i.test(v)) return '220V';
     if (v) return v;
   } catch(e){}
+  if (window.detectProduct() === 'projetor') return 'Bivolt (110V/220V)';
   return '110V';
 };
 </script>
@@ -428,11 +436,17 @@ window.getChosenVoltage = function() {
    Controla: quantidade, frete escolhido, order bumps e cor. Renderiza os resumos
    da etapa 2 e 3 (e o total do PIX) sempre a partir deste estado. ================ */
 (function(){
-  var isWap = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : false;
+  var prod = (typeof window.detectProduct === 'function') ? window.detectProduct() : 'frigobar';
+  var isWap = prod === 'lavadora';
+  var isProjetor = prod === 'projetor';
 
-  var UNIT = isWap ? 57.90 : 124.90;
+  var UNIT = isProjetor ? 255.90 : (isWap ? 57.90 : 124.90);
 
-  var BUMPS = isWap ? [
+  var BUMPS = isProjetor ? [
+    {id:'tela',title:'Tela de Projeção Portátil 100" Anti-Luz (Alto Ganho)',price:39.90,old:89.90,disc:56,img:'/assets/projetor/projetor-5.jpg',tag:'MAIS VENDIDO'},
+    {id:'suporte',title:'Suporte Articulado de Parede e Teto para Projetor',price:29.90,old:69.90,disc:57,img:'/assets/projetor/projetor-2.jpg'},
+    {id:'teclado',title:'Mini Teclado Sem Fio com Touchpad Iluminado',price:24.90,old:59.90,disc:58,img:'/assets/projetor/projetor-4.jpg'}
+  ] : (isWap ? [
     {id:'shampoo',title:'Shampoo Concentrado WAP Lava Auto 1L (Alto Rendimento)',price:29.90,old:59.90,disc:50,img:'/assets/wap/wap-9.jpg',tag:'MAIS VENDIDO'},
     {id:'mangueira',title:'Mangueira de Alta Pressão Extensora 5m Reforçada WAP',price:39.90,old:89.90,disc:56,img:'/assets/wap/wap-3.jpg'},
     {id:'turbo',title:'Bico Turbo Giratório 360° para Limo e Encardidos Pesados',price:34.90,old:79.90,disc:56,img:'/assets/wap/wap-4.jpg'}
@@ -440,7 +454,7 @@ window.getChosenVoltage = function() {
     {id:'aspirador',title:'Aspirador Pet Mondial Preto 1600W - AP-42-BI-PET',price:51.99,old:344.00,disc:85,img:'/l5e/assets-v1/c356be16-1d5f-4380-9ea2-cb1d5cd43e01/bump-aspirador.webp'},
     {id:'cesto',title:'Cesto Antiaderente Preto da Air Fryer Mondial AFN-50',price:29.90,old:71.90,disc:58,img:'/l5e/assets-v1/db04e753-1e33-434e-a436-a2cd3484905d/bump-cesto.webp',tag:'MAIS VENDIDA'},
     {id:'passadeira',title:'Passadeira a Vapor Portátil Mondial Fast Steam VP-09',price:85.90,old:299.99,disc:71,img:'/l5e/assets-v1/556dcb9a-ebb7-4692-8ddc-6dacea3a833e/bump-passadeira.webp'}
-  ];
+  ]);
   var urlQtd=1, hasUrlQtd=false;
   try{
     var qp=new URLSearchParams(location.search).get('qtd');
@@ -485,7 +499,8 @@ window.getChosenVoltage = function() {
   function items(){
     var cor=corNome();
     var volt=voltagemNome();
-    var nome=isWap ? 'WAP Lavadora WL 1800 1500 PSI' : 'Frigobar Mondial 73L';
+    var prod=(typeof window.detectProduct==='function')?window.detectProduct():'frigobar';
+    var nome=prod==='projetor' ? 'Projetor HY320 Smart TV Android 4K' : (prod==='lavadora' ? 'WAP Lavadora WL 1800 1500 PSI' : 'Frigobar Mondial 73L');
     if(cor) nome+=' - '+cor;
     if(volt) nome+=' - '+volt;
     var list=[{ name:nome, quantity:state.qty, price:UNIT }];
@@ -631,13 +646,21 @@ window.getChosenVoltage = function() {
 
   var raf=null, rendering=false, mo=null;
   function updateProductCards(){
-    var isW = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : isWap;
+    var prod = (typeof window.detectProduct === 'function') ? window.detectProduct() : 'frigobar';
     var volt = (typeof window.getChosenVoltage === 'function') ? window.getChosenVoltage() : (voltagemNome() || '110V');
     var cor = corNome();
 
-    var title = isW ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' : ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto'));
-    var img = isW ? '/assets/wap/wap-1.jpg' : ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp');
-    var sub = isW ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' : 'Garantia 1 ano + 10 anos no compressor';
+    var title = (prod === 'projetor') ? 'Projetor HY320 Davely Smart TV Android WiFi 6 Full HD 4K' :
+                ((prod === 'lavadora') ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' :
+                ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto')));
+
+    var img = (prod === 'projetor') ? '/assets/projetor/projetor-1.jpg' :
+              ((prod === 'lavadora') ? '/assets/wap/wap-1.jpg' :
+              ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp'));
+
+    var sub = (prod === 'projetor') ? 'Garantia Oficial 1 Ano · Android WiFi 6 · Suporte 4K' :
+              ((prod === 'lavadora') ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' :
+              'Garantia 1 ano + 10 anos no compressor');
 
     document.querySelectorAll('.lv-checkout-prod-img, #lv-checkout-prod-img, #lv-checkout-prod-img-2, #lv-checkout-prod-img-3').forEach(function(el){
       if(!el.src || (!el.src.endsWith(img) && el.src !== location.origin + img)) el.src = img;
@@ -966,15 +989,21 @@ window.getChosenVoltage = function() {
   function createPix(){
     if(loading || loaded) return;
     loading=true; setLoading();
-    var amount=(window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || (isWap ? 57.90 : 124.90);
+    var prod = (typeof window.detectProduct === 'function') ? window.detectProduct() : 'frigobar';
+    var defaultAmount = (prod === 'projetor') ? 255.90 : ((prod === 'lavadora') ? 57.90 : 124.90);
+    var amount = (window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || defaultAmount;
     try{ if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:amount,currency:'BRL'});ttq.track('InitiateCheckout',{value:amount,currency:'BRL'}); }catch(e){}
     saveDados();
     var _d=loadDados();
     var _v=function(id){var el=document.getElementById(id);return el&&el.value?String(el.value).trim():'';};
+    var clientNameFallback = (prod === 'projetor') ? 'Cliente Projetor' : ((prod === 'lavadora') ? 'Cliente WAP' : 'Cliente Mondial');
+    var prodName = (prod === 'projetor') ? 'Projetor HY320 Smart TV Android 4K' : ((prod === 'lavadora') ? 'WAP Lavadora WL 1800 1500 PSI' : 'Frigobar Mondial 73L');
+    var prodId = (prod === 'projetor') ? 'projetor-hy320' : ((prod === 'lavadora') ? 'wap-wl-1800' : 'frigobar-73l');
+
     var payload={
       amount: amount,
       client: {
-        name: getVal('Nome e Sobrenome') || _d.nome || (isWap ? 'Cliente WAP' : 'Cliente Mondial'),
+        name: getVal('Nome e Sobrenome') || _d.nome || clientNameFallback,
         email: getVal('email@email.com') || _d.email || 'cliente@pagamento.com',
         document: ((getVal('123.456.789-12')||_d.cpf||'05477464003')+'').replace(/\D/g,'') || '05477464003',
         phone: ((getVal('(99) 99999-9999')||_d.telefone||'11999999999')+'').replace(/\D/g,'') || '11999999999'
@@ -991,8 +1020,8 @@ window.getChosenVoltage = function() {
       shippingOption: (window.LV_ORDER ? window.LV_ORDER.shipping() : {name:'Frete Grátis',price:0}),
       tracking: (window.LV_UTM && window.LV_UTM.get()) || null,
       fb: (window.LV_FB && window.LV_FB.get()) || null,
-      description: (isWap ? 'WAP Lavadora WL 1800 1500 PSI' : 'Frigobar Mondial 73L'),
-      products: (window.LV_ORDER && window.LV_ORDER.items().length ? window.LV_ORDER.items() : [{ id: (isWap ? 'wap-wl-1800' : 'frigobar-73l'), name: (isWap ? 'WAP Lavadora WL 1800 1500 PSI' : 'Frigobar Mondial 73L'), quantity: 1, price: amount }])
+      description: prodName,
+      products: (window.LV_ORDER && window.LV_ORDER.items().length ? window.LV_ORDER.items() : [{ id: prodId, name: prodName, quantity: 1, price: amount }])
     };
 
     var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -1140,33 +1169,25 @@ window.getChosenVoltage = function() {
   #lv-bumps-line span:last-child{color:#059669;font-weight:700}
 </style>
 
-
 <script>
-/* Sincroniza produto (WAP Lavadora vs Frigobar Mondial) e cor no checkout */
+/* Sincroniza produto (Projetor HY320 vs WAP Lavadora vs Frigobar Mondial) e cor no checkout */
 (function(){
-  function detectIsWap(){
-    try {
-      var _sp = new URLSearchParams(location.search);
-      var _p = (_sp.get('produto') || '').toLowerCase();
-      var _c = (_sp.get('cor') || localStorage.getItem('corSelecionada') || '').toLowerCase();
-      var _ps = (localStorage.getItem('produtoSelecionado') || '').toLowerCase();
-      if (_p.includes('lavadora') || _p.includes('wap') || _c.includes('wap') || _c.includes('lavadora') || _ps.includes('lavadora') || _ps.includes('wap')) {
-        return true;
-      }
-    } catch(e){}
-    return false;
-  }
-
-  var isWap = detectIsWap();
-
   function applyProductUI(){
-    var isW = (typeof window.detectIsWap === 'function') ? window.detectIsWap() : isWap;
-    var volt = (typeof window.getChosenVoltage === 'function') ? window.getChosenVoltage() : (voltagemNome() || '110V');
+    var prod = (typeof window.detectProduct === 'function') ? window.detectProduct() : 'frigobar';
+    var volt = (typeof window.getChosenVoltage === 'function') ? window.getChosenVoltage() : '110V';
     var cor = (typeof window.LV_COR === 'function') ? window.LV_COR() : '';
 
-    var title = isW ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' : ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto'));
-    var img = isW ? '/assets/wap/wap-1.jpg' : ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp');
-    var sub = isW ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' : 'Garantia 1 ano + 10 anos no compressor';
+    var title = (prod === 'projetor') ? 'Projetor HY320 Davely Smart TV Android WiFi 6 Full HD 4K' :
+                ((prod === 'lavadora') ? 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI' :
+                ('Mondial Frigobar 73L FGB-01-B80' + (cor ? ' - ' + cor : ' Preto')));
+
+    var img = (prod === 'projetor') ? '/assets/projetor/projetor-1.jpg' :
+              ((prod === 'lavadora') ? '/assets/wap/wap-1.jpg' :
+              ((cor && cor.toLowerCase().indexOf('branco') >= 0) ? '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp' : '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp'));
+
+    var sub = (prod === 'projetor') ? 'Garantia Oficial 1 Ano · Android WiFi 6 · Suporte 4K' :
+              ((prod === 'lavadora') ? 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W' :
+              'Garantia 1 ano + 10 anos no compressor');
 
     // Atualiza todos os elementos de imagem, título, subtítulo e voltagem nas etapas 1, 2 e 3
     document.querySelectorAll('.lv-checkout-prod-img, #lv-checkout-prod-img, #lv-checkout-prod-img-2, #lv-checkout-prod-img-3').forEach(function(el){
@@ -1179,126 +1200,15 @@ window.getChosenVoltage = function() {
     document.querySelectorAll('.lv-checkout-prod-sub, #lv-checkout-prod-sub, #lv-checkout-prod-sub-2, #lv-checkout-prod-sub-3').forEach(function(el){
       el.textContent = sub;
     });
-    document.querySelectorAll('.lv-checkout-prod-volt, #lv-checkout-prod-volt-1, #lv-checkout-prod-volt-2, #lv-checkout-prod-volt-3').forEach(function(el){
+    document.querySelectorAll('.lv-checkout-prod-volt, #lv-checkout-prod-volt, #lv-checkout-prod-volt-1, #lv-checkout-prod-volt-2, #lv-checkout-prod-volt-3').forEach(function(el){
       el.innerHTML = '⚡ Voltagem: <strong class="lv-volt-val">' + volt + '</strong>';
     });
 
     var subtotalEl = document.getElementById('lv-pix-subtotal');
     var subLineEl = document.getElementById('lv-pix-subtotal-line');
-    if (isW) {
-      if (subtotalEl && (!subtotalEl.textContent || subtotalEl.textContent.indexOf('124') >= 0)) {
-        subtotalEl.innerHTML = 'R  function applyProductUI(){
-    var imgEl = document.getElementById('lv-checkout-prod-img');
-    var titleEl = document.getElementById('lv-checkout-prod-title');
-    var subEl = document.getElementById('lv-checkout-prod-sub');
-    var subtotalEl = document.getElementById('lv-pix-subtotal');
-    var subLineEl = document.getElementById('lv-pix-subtotal-line');
-
-    if (isWap) {
-      if (imgEl) {
-        imgEl.src = '/assets/wap/wap-1.jpg';
-        imgEl.alt = 'WAP Lavadora de Alta Pressão WL 1800';
-      }
-      if (titleEl) {
-        titleEl.textContent = 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI';
-      }
-      if (subEl) {
-        subEl.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
-      }
-      if (subtotalEl && (!subtotalEl.textContent || subtotalEl.textContent.indexOf('124') >= 0)) {
-        subtotalEl.innerHTML = 'R$&nbsp;57,90';
-      }
-      if (subLineEl && (!subLineEl.textContent || subLineEl.textContent.indexOf('124') >= 0)) {
-        subLineEl.innerHTML = 'R$&nbsp;57,90';
-      }
-    } else {
-      // Mondial Frigobar
-      var MAP = {
-        preto: { img: '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp', nome: 'Preto' },
-        branco: { img: '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp', nome: 'Branco' }
-      };
-      function norm(v){
-        v = (v || '').toLowerCase();
-        var hasPreto = v.indexOf('preta') >= 0 || v.indexOf('preto') >= 0;
-        var hasBranco = v.indexOf('branco') >= 0 || v.indexOf('branca') >= 0;
-        if(hasPreto && hasBranco) return 'preto+branco';
-        if(hasPreto) return 'preto';
-        if(hasBranco) return 'branco';
-        return null;
-      }
-      var q = null;
-      try { q = new URLSearchParams(location.search).get('cor'); } catch(e){}
-      var c = norm(q);
-      if(!c){ try { c = norm(localStorage.getItem('corSelecionada')); } catch(e){} }
-      if (c && MAP[c]) {
-        if (imgEl) {
-          imgEl.src = MAP[c].img;
-          imgEl.alt = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
-        }
-        if (titleEl) {
-          titleEl.textContent = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
-        }
-      }
-    }
-  }nbsp;57,90';
-      }
-      if (subLineEl && (!subLineEl.textContent || subLineEl.textContent.indexOf('124') >= 0)) {
-        subLineEl.innerHTML = 'R  function applyProductUI(){
-    var imgEl = document.getElementById('lv-checkout-prod-img');
-    var titleEl = document.getElementById('lv-checkout-prod-title');
-    var subEl = document.getElementById('lv-checkout-prod-sub');
-    var subtotalEl = document.getElementById('lv-pix-subtotal');
-    var subLineEl = document.getElementById('lv-pix-subtotal-line');
-
-    if (isWap) {
-      if (imgEl) {
-        imgEl.src = '/assets/wap/wap-1.jpg';
-        imgEl.alt = 'WAP Lavadora de Alta Pressão WL 1800';
-      }
-      if (titleEl) {
-        titleEl.textContent = 'WAP Lavadora de Alta Pressão WL 1800 1400W 1500 PSI';
-      }
-      if (subEl) {
-        subEl.textContent = 'Garantia Oficial WAP 1 Ano · 1500 PSI / 1400W';
-      }
-      if (subtotalEl && (!subtotalEl.textContent || subtotalEl.textContent.indexOf('124') >= 0)) {
-        subtotalEl.innerHTML = 'R$&nbsp;57,90';
-      }
-      if (subLineEl && (!subLineEl.textContent || subLineEl.textContent.indexOf('124') >= 0)) {
-        subLineEl.innerHTML = 'R$&nbsp;57,90';
-      }
-    } else {
-      // Mondial Frigobar
-      var MAP = {
-        preto: { img: '/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp', nome: 'Preto' },
-        branco: { img: '/l5e/assets-v1/5a8d32a9-6fa0-4e79-b9a5-f5fcd3ee3cd9/cor-branco.webp', nome: 'Branco' }
-      };
-      function norm(v){
-        v = (v || '').toLowerCase();
-        var hasPreto = v.indexOf('preta') >= 0 || v.indexOf('preto') >= 0;
-        var hasBranco = v.indexOf('branco') >= 0 || v.indexOf('branca') >= 0;
-        if(hasPreto && hasBranco) return 'preto+branco';
-        if(hasPreto) return 'preto';
-        if(hasBranco) return 'branco';
-        return null;
-      }
-      var q = null;
-      try { q = new URLSearchParams(location.search).get('cor'); } catch(e){}
-      var c = norm(q);
-      if(!c){ try { c = norm(localStorage.getItem('corSelecionada')); } catch(e){} }
-      if (c && MAP[c]) {
-        if (imgEl) {
-          imgEl.src = MAP[c].img;
-          imgEl.alt = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
-        }
-        if (titleEl) {
-          titleEl.textContent = 'Mondial Frigobar 73L FGB-01-B80 - ' + MAP[c].nome;
-        }
-      }
-    }
-  }nbsp;57,90';
-      }
-    }
+    var targetPrice = (prod === 'projetor') ? 'R$&nbsp;255,90' : ((prod === 'lavadora') ? 'R$&nbsp;57,90' : 'R$&nbsp;124,90');
+    if (subtotalEl) subtotalEl.innerHTML = targetPrice;
+    if (subLineEl) subLineEl.innerHTML = targetPrice;
   }
 
   if (document.readyState === 'loading') {
@@ -1308,26 +1218,8 @@ window.getChosenVoltage = function() {
   }
   setTimeout(applyProductUI, 50);
   setTimeout(applyProductUI, 300);
-
-  // Renderiza voltagem escolhida abaixo do nome do produto no carrinho
-  function voltagemNome(){
-    try{
-      var v=new URLSearchParams(location.search).get('voltagem')||localStorage.getItem('voltagemSelecionada')||'';
-      v=v.trim();
-      if(v==='110'||v==='110V'||v==='110v'||v.toLowerCase()==='110v')return'110V';
-      if(v==='127'||v==='127V'||v==='127v'||v.toLowerCase()==='127v')return'110V';
-      if(v==='220'||v==='220V'||v==='220v'||v.toLowerCase()==='220v')return'220V';
-      if(v)return v;
-    }catch(e){}
-    return '';
-  }
-  var volt=voltagemNome()||'';
-  if(volt){
-    var subEl = document.getElementById('lv-checkout-prod-sub');
-    if(subEl){
-      subEl.textContent = (isWap ? 'WAP 1500 PSI / 1400W' : 'Garantia Mondial') + ' · Voltagem: ' + volt;
-    }
-  }
+  setTimeout(applyProductUI, 1000);
 })();
 </script>
-</body></html>
+</body>
+</html>

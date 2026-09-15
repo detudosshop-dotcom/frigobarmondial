@@ -14,12 +14,16 @@ const transactionsDb = new Map();
 const FAQ_REPLIES = {
   'entrega': 'Nosso prazo de entrega padrão é de 8 a 12 dias úteis com Frete Grátis, ou em até 5 dias úteis no Frete Expresso com rastreamento completo em tempo real!',
   'pagamento': 'O pagamento é realizado via PIX com segurança e aprovação instantânea pelo gateway oficial FlevoPay!',
-  'voltagem': 'Nossos produtos (Frigobar Mondial e Lavadora WAP) estão disponíveis nas voltagens 110V e 220V!',
+  'voltagem': 'Nossos produtos estão disponíveis nas voltagens 110V e 220V, e o Projetor HY320 é Bivolt automático (110V/220V)!',
   'frigobar': 'O Frigobar Mondial possui 73 Litros de capacidade, gaveta de gelo, prateleiras ajustáveis e alta eficiência energética!',
   'lavadora': 'A WAP Lavadora WL 1800 possui 1400W de potência, 1500 PSI de pressão e vazão máxima de 360 L/h, com economia de até 80% de água!',
+  'projetor': 'O Projetor HY320 Davely conta com 390 ANSI Lumens, Smart TV Android com apps integrados, WiFi 6, Bluetooth 5.0, rotação de 180° no teto/parede e suporte a 4K UHD!',
+  'hy320': 'O Projetor HY320 Davely conta com 390 ANSI Lumens, Smart TV Android com apps integrados, WiFi 6, Bluetooth 5.0, rotação de 180° e suporte a 4K UHD!',
+  'lumens': 'O Projetor HY320 entrega 390 ANSI Lumens com tecnologia LCD LED de alta definição e decodificação 4K!',
+  'teto': 'Sim! O Projetor HY320 possui base giratória de 180°, permitindo projetar confortavelmente no teto do quarto ou em qualquer parede!',
   'garantia': 'Garantia de fábrica com cobertura nacional e assistência técnica em todo o Brasil!',
   'devolucao': 'Você possui até 30 dias após o recebimento para devolução gratuita garantida.'
-};
+}
 
 function getUtcDateString(d) {
   try {
@@ -119,8 +123,24 @@ async function sendUtmifyOrder(orderData, isTest = false) {
 }
 
 async function createFlevoPix(payload, clientIp) {
-  const isWapEarly = (payload.description || (payload.products && payload.products[0] && payload.products[0].name) || '').toLowerCase().includes('wap');
-  const defaultAmount = isWapEarly ? 57.90 : 124.90;
+  const descLower = (payload.description || (payload.products && payload.products[0] && payload.products[0].name) || '').toLowerCase();
+  let defaultAmount = 124.90;
+  let prodId = 'frigobar-73l';
+  let prodName = 'Frigobar Mondial 73L';
+  let fallbackClientName = 'Cliente Mondial';
+
+  if (descLower.includes('projetor') || descLower.includes('hy320')) {
+    defaultAmount = 255.90;
+    prodId = 'projetor-hy320';
+    prodName = 'Projetor HY320 Smart TV Android 4K';
+    fallbackClientName = 'Cliente Projetor';
+  } else if (descLower.includes('wap') || descLower.includes('lavadora')) {
+    defaultAmount = 57.90;
+    prodId = 'wap-wl-1800';
+    prodName = 'WAP Lavadora WL 1800 1500 PSI';
+    fallbackClientName = 'Cliente WAP';
+  }
+
   const amountFloat = Number(payload.amount || defaultAmount);
   const amountCents = Math.max(100, Math.round(amountFloat * 100));
 
@@ -129,11 +149,6 @@ async function createFlevoPix(payload, clientIp) {
   const phoneDigits = formatPhone(client.phone);
   const tracking = payload.tracking || {};
   const reference = 'REF_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-
-  const prodName = payload.description || (payload.products && payload.products[0] && payload.products[0].name) || 'Frigobar Mondial 73L';
-  const isWap = prodName.toLowerCase().includes('wap') || prodName.toLowerCase().includes('lavadora');
-  const fallbackClientName = isWap ? 'Cliente WAP' : 'Cliente Mondial';
-  const prodId = isWap ? 'wap-wl-1800' : 'frigobar-73l';
 
   const flevoPayload = {
     amount: amountCents,
