@@ -78,6 +78,218 @@ button, a, input, select {
 
 </style>
 
+
+<style>
+.lv-promo-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  contain: strict;
+}
+.lv-promo-popup.lv-promo-popup--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lv-promo-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(28,4,18,0.72) 0%, rgba(4,4,8,0.9) 70%);
+}
+.lv-promo-popup__content {
+  position: relative;
+  z-index: 2;
+  width: min(440px, 92vw);
+  transform: scale(0.6) translateY(32px);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.45s ease;
+  will-change: transform, opacity;
+  text-align: center;
+}
+.lv-promo-popup.lv-promo-popup--visible .lv-promo-popup__content {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+.lv-promo-popup__card {
+  background: linear-gradient(135deg, #1a0a14 0%, #0d0d1a 100%);
+  border-radius: 24px;
+  padding: 28px 20px 24px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+}
+.lv-promo-popup__badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: #ff0050;
+  box-shadow: 0 6px 18px rgba(255,0,80,0.35);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  animation: lv-promo-badge-pulse 2s ease-in-out infinite;
+}
+.lv-promo-popup__logo-wrap {
+  position: relative;
+  padding: 4px;
+}
+.lv-promo-popup__logo-wrap::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 96%;
+  height: 82%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,0,80,0.45) 0%, rgba(0,242,234,0.22) 45%, transparent 72%);
+  filter: blur(26px);
+  animation: lv-promo-glow 2.8s ease-in-out infinite;
+}
+.lv-promo-popup__logo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,0.45));
+  animation: lv-promo-popup-bounce 0.85s cubic-bezier(0.2,1.2,0.3,1) 0.2s both;
+}
+@keyframes lv-promo-popup-bounce {
+  0% { transform: scale(0.9) rotate(-1.5deg); }
+  45% { transform: scale(1.05) rotate(0.8deg); }
+  70% { transform: scale(0.98) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes lv-promo-glow {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+@keyframes lv-promo-badge-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 6px 18px rgba(255,0,80,0.35); }
+  50% { transform: scale(1.04); box-shadow: 0 8px 24px rgba(255,0,80,0.5); }
+}
+.lv-promo-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+.lv-promo-confetti .confetti {
+  position: absolute;
+  top: -10px;
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  opacity: 0.95;
+  will-change: transform, opacity;
+  animation: lv-confetti-fall linear forwards;
+}
+@keyframes lv-confetti-fall {
+  0% { transform: translate3d(0,-10px,0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(0,110vh,0) rotate(720deg); opacity: 0.3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-promo-popup__logo, .lv-promo-popup__badge, .lv-promo-popup__logo-wrap::before, .lv-promo-confetti .confetti { animation: none !important; }
+}
+/* Video demo lightbox */
+#projetor-demo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#projetor-demo-lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+#projetor-demo-lightbox img {
+  max-width: 95vw;
+  max-height: 88vh;
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  object-fit: contain;
+}
+#projetor-demo-lightbox .lb-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+</style>
+<script>
+(function(){
+  var popup = document.getElementById('lv-promo-popup');
+  if (!popup) return;
+  var shown = sessionStorage.getItem('lv_promo_popup_shown');
+  if (shown) { popup.remove(); return; }
+
+  function createConfetti() {
+    var container = document.getElementById('lv-promo-confetti');
+    if (!container) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var colors = ['#ff0050','#ff4b2f','#ff8a00','#ffd700','#00f0ff','#ffffff','#ff69b4'];
+    var count = window.innerWidth < 500 ? 26 : 40;
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + '%';
+      el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (Math.random() * 2.2 + 2.4) + 's';
+      el.style.animationDelay = (Math.random() * 1.2) + 's';
+      el.style.width = (Math.random() * 6 + 6) + 'px';
+      el.style.height = (Math.random() * 10 + 10) + 'px';
+      frag.appendChild(el);
+    }
+    container.appendChild(frag);
+  }
+
+  function show() {
+    requestAnimationFrame(function(){ createConfetti(); });
+    popup.classList.add('lv-promo-popup--visible');
+    popup.setAttribute('aria-hidden', 'false');
+    sessionStorage.setItem('lv_promo_popup_shown', '1');
+    setTimeout(function(){
+      popup.classList.remove('lv-promo-popup--visible');
+      popup.setAttribute('aria-hidden', 'true');
+      setTimeout(function(){ popup.remove(); }, 450);
+    }, 4000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', show);
+  } else {
+    show();
+  }
+})();
+</script>
 </head>
 
 <body class="bg-[#f5f5f5] text-[color:var(--pann-fg)] antialiased font-[Inter,system-ui,sans-serif]">
@@ -117,7 +329,7 @@ button, a, input, select {
     <div id="lv-carousel" class="overflow-x-auto overflow-y-hidden scroll-smooth [scroll-snap-type:x_mandatory] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div class="flex">
         <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white"><img src="/assets/projetor/projetor-1.jpg" alt="Projetor HY320 Davely Smart TV Android Wifi 6 390 ANSI Lumens Full HD 4K" loading="eager" decoding="sync" fetchpriority="high" width="480" height="480" class="w-full h-full object-contain"></div></div>
-        <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white"><img src="/assets/projetor/projetor-2.jpg" alt="Projetor HY320 rotação 180 graus projeção no teto e parede" loading="lazy" decoding="async" fetchpriority="low" width="480" height="480" class="w-full h-full object-contain"></div></div>
+        <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white relative cursor-pointer" onclick="document.getElementById('projetor-demo-lightbox').classList.add('active')" title="Clique para ampliar"><img src="/assets/projetor/projetor-2.jpg" alt="Projetor HY320 rotação 180 graus projeção no teto e parede" loading="lazy" decoding="async" fetchpriority="low" width="480" height="480" class="w-full h-full object-contain"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><div style="width:52px;height:52px;border-radius:50%;background:rgba(220,38,38,0.85);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></div></div></div></div>
         <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white"><img src="/assets/projetor/projetor-3.jpg" alt="Smart TV Android com Netflix, YouTube, Prime Video e apps integrados" loading="lazy" decoding="async" fetchpriority="low" width="480" height="480" class="w-full h-full object-contain"></div></div>
         <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white"><img src="/assets/projetor/projetor-4.jpg" alt="Conexões HDMI, USB, áudio P2 e Bluetooth 5.0 para som e videogame" loading="lazy" decoding="async" fetchpriority="low" width="480" height="480" class="w-full h-full object-contain"></div></div>
         <div class="flex-[0_0_100%] [scroll-snap-align:center]"><div class="aspect-square bg-white"><img src="/assets/projetor/projetor-5.jpg" alt="Super tela de 85 até 200 polegadas com ajuste de foco e Auto Keystone" loading="lazy" decoding="async" fetchpriority="low" width="480" height="480" class="w-full h-full object-contain"></div></div>
@@ -207,7 +419,7 @@ button, a, input, select {
             <span class="absolute inset-0 rounded-full bg-[#f43f5e] opacity-60" style="animation:pann-ping 1.7s cubic-bezier(0,0,0.2,1) infinite"></span>
             <span class="relative w-2.5 h-2.5 rounded-full" style="background:linear-gradient(135deg,#fb7185,#e11d48)"></span>
           </span>
-          <span class="text-[12px] font-bold tracking-[-0.01em] leading-none" style="color:#be123c">Restam poucas unidades</span>
+          <span class="text-[12px] font-bold tracking-[-0.01em] leading-none" style="color:#be123c">Restam apenas 7 unidades</span>
         </div>
       </div>
 
@@ -708,89 +920,7 @@ button, a, input, select {
   </section>
 
   <!-- Catálogo de Produtos da Loja (Opção Loja) -->
-  <section class="p-3 pt-2" id="produtos-loja">
-    <div class="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-4 bg-rose-600 rounded-full inline-block"></span>
-          <h3 class="text-[14px] font-bold text-neutral-900">Produtos em Destaque da Loja</h3>
-        </div>
-        <span class="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">3 Ofertas Ativas</span>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-        <!-- Produto 1: Frigobar Mondial -->
-        <a href="/" class="group rounded-xl border border-neutral-200 hover:border-rose-500 bg-white p-2.5 shadow-sm active:scale-[0.98] transition-all no-underline text-inherit flex flex-col justify-between relative">
-          <div>
-            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
-              <img src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Frigobar Mondial 73L" class="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200">
-              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-91%</span>
-            </div>
-            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px] group-hover:text-rose-600 transition-colors">
-              Mondial Frigobar 73L FGB-01-B80 Preto
-            </div>
-            <div class="mt-1.5 flex items-baseline gap-1">
-              <span class="text-[14px] font-extrabold text-rose-600">R$ 124,90</span>
-              <span class="text-[10px] text-neutral-400 line-through">R$ 1.399</span>
-            </div>
-            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-              <span>★ 4.9</span> · <span>Frete Grátis</span>
-            </div>
-          </div>
-          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-rose-600 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-            Ver Oferta →
-          </span>
-        </a>
-
-        <!-- Produto 2: WAP Lavadora WL 1800 -->
-        <a href="/lavadora" class="group rounded-xl border border-neutral-200 hover:border-rose-500 bg-white p-2.5 shadow-sm active:scale-[0.98] transition-all no-underline text-inherit flex flex-col justify-between relative">
-          <div>
-            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
-              <img src="/assets/wap/wap-1.jpg" alt="WAP Lavadora WL 1800" class="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200">
-              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-90%</span>
-            </div>
-            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px] group-hover:text-rose-600 transition-colors">
-              WAP Lavadora WL 1800 1500 PSI 1400W
-            </div>
-            <div class="mt-1.5 flex items-baseline gap-1">
-              <span class="text-[14px] font-extrabold text-rose-600">R$ 57,90</span>
-              <span class="text-[10px] text-neutral-400 line-through">R$ 589</span>
-            </div>
-            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-              <span>★ 4.9</span> · <span>Frete Grátis</span>
-            </div>
-          </div>
-          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-rose-600 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-            Ver Oferta →
-          </span>
-        </a>
-
-        <!-- Produto 3: Projetor HY320 (Produto Atual) -->
-        <div class="rounded-xl border-2 border-rose-500/40 bg-white p-2.5 shadow-sm relative flex flex-col justify-between">
-          <div>
-            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
-              <img src="/assets/projetor/projetor-1.jpg" alt="Projetor HY320 Davely" class="w-full h-full object-contain p-1">
-              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-63%</span>
-              <span class="absolute top-1 right-1 bg-neutral-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ATUAL</span>
-            </div>
-            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px]">
-              Projetor HY320 Smart TV Android 4K
-            </div>
-            <div class="mt-1.5 flex items-baseline gap-1">
-              <span class="text-[14px] font-extrabold text-rose-600">R$ 255,90</span>
-              <span class="text-[10px] text-neutral-400 line-through">R$ 689</span>
-            </div>
-            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-              <span>★ 4.6</span> · <span>Frete Grátis</span>
-            </div>
-          </div>
-          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
-            ✓ Visualizando agora
-          </span>
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   <div class="h-2 bg-[color:var(--pann-muted)]"></div>
 
@@ -892,6 +1022,93 @@ button, a, input, select {
           <p class="text-[11.5px] text-neutral-600 mt-1 leading-relaxed">
             Ajuste o tamanho da tela conforme o espaço disponível e desfrute de alinhamento automático de trapézio para uma projeção reta e perfeita.
           </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <div class="h-2 bg-[color:var(--pann-muted)]"></div>
+
+  <section class="p-3 pt-2" id="produtos-loja">
+    <div class="rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-xs">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-4 bg-rose-600 rounded-full inline-block"></span>
+          <h3 class="text-[14px] font-bold text-neutral-900">Produtos em Destaque da Loja</h3>
+        </div>
+        <span class="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">3 Ofertas Ativas</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <!-- Produto 1: Frigobar Mondial -->
+        <a href="/" class="group rounded-xl border border-neutral-200 hover:border-rose-500 bg-white p-2.5 shadow-sm active:scale-[0.98] transition-all no-underline text-inherit flex flex-col justify-between relative">
+          <div>
+            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
+              <img src="/l5e/assets-v1/1254837d-b5b6-48f5-9da8-5981504801e9/frigobar-1.webp" alt="Frigobar Mondial 73L" class="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200">
+              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-91%</span>
+            </div>
+            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px] group-hover:text-rose-600 transition-colors">
+              Mondial Frigobar 73L FGB-01-B80 Preto
+            </div>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-[14px] font-extrabold text-rose-600">R$ 124,90</span>
+              <span class="text-[10px] text-neutral-400 line-through">R$ 1.399</span>
+            </div>
+            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span>★ 4.9</span> · <span>Frete Grátis</span>
+            </div>
+          </div>
+          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-rose-600 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+            Ver Oferta →
+          </span>
+        </a>
+
+        <!-- Produto 2: WAP Lavadora WL 1800 -->
+        <a href="/lavadora" class="group rounded-xl border border-neutral-200 hover:border-rose-500 bg-white p-2.5 shadow-sm active:scale-[0.98] transition-all no-underline text-inherit flex flex-col justify-between relative">
+          <div>
+            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
+              <img src="/assets/wap/wap-1.jpg" alt="WAP Lavadora WL 1800" class="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-200">
+              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-90%</span>
+            </div>
+            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px] group-hover:text-rose-600 transition-colors">
+              WAP Lavadora WL 1800 1500 PSI 1400W
+            </div>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-[14px] font-extrabold text-rose-600">R$ 57,90</span>
+              <span class="text-[10px] text-neutral-400 line-through">R$ 589</span>
+            </div>
+            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span>★ 4.9</span> · <span>Frete Grátis</span>
+            </div>
+          </div>
+          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-rose-600 bg-rose-50 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+            Ver Oferta →
+          </span>
+        </a>
+
+        <!-- Produto 3: Projetor HY320 (Produto Atual) -->
+        <div class="rounded-xl border-2 border-rose-500/40 bg-white p-2.5 shadow-sm relative flex flex-col justify-between">
+          <div>
+            <div class="relative aspect-square rounded-lg bg-neutral-50 overflow-hidden mb-2">
+              <img src="/assets/projetor/projetor-1.jpg" alt="Projetor HY320 Davely" class="w-full h-full object-contain p-1">
+              <span class="absolute top-1 left-1 bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-sm">-63%</span>
+              <span class="absolute top-1 right-1 bg-neutral-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ATUAL</span>
+            </div>
+            <div class="text-[12px] font-bold text-neutral-900 line-clamp-2 leading-tight min-h-[30px]">
+              Projetor HY320 Smart TV Android 4K
+            </div>
+            <div class="mt-1.5 flex items-baseline gap-1">
+              <span class="text-[14px] font-extrabold text-rose-600">R$ 255,90</span>
+              <span class="text-[10px] text-neutral-400 line-through">R$ 689</span>
+            </div>
+            <div class="mt-1 text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span>★ 4.6</span> · <span>Frete Grátis</span>
+            </div>
+          </div>
+          <span class="mt-2 w-full inline-flex items-center justify-center py-1.5 rounded-lg text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200">
+            ✓ Visualizando agora
+          </span>
         </div>
       </div>
     </div>
@@ -1271,5 +1488,11 @@ button, a, input, select {
 })();
 </script>
 
+
+<!-- Projetor demo lightbox -->
+<div id="projetor-demo-lightbox" onclick="this.classList.remove('active')">
+  <button class="lb-close" onclick="document.getElementById('projetor-demo-lightbox').classList.remove('active')" aria-label="Fechar">✕</button>
+  <img src="/assets/projetor/projetor-2.jpg" alt="Projetor HY320 - visualização em tela cheia" loading="lazy">
+</div>
 </body>
 </html>
