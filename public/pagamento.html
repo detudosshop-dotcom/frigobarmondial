@@ -174,10 +174,12 @@ window.getChosenVoltage = function() {
           border: 1px solid rgb(229 229 229);
           background: white;
           padding: 0 14px;
-          font-size: 14px;
+          font-size: 16px;
           color: rgb(23 23 23);
           outline: none;
           transition: border-color .15s, box-shadow .15s;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
         }
         .tt-input:focus { border-color: rgb(16 185 129); box-shadow: 0 0 0 3px rgba(16,185,129,.12); }
         .tt-input:disabled { background: rgb(245 245 245); color: rgb(163 163 163); }
@@ -189,6 +191,7 @@ window.getChosenVoltage = function() {
           background: rgb(23 23 23); color: white; font-weight: 700; font-size: 14px;
           letter-spacing: .02em;
           transition: opacity .15s, transform .05s;
+          touch-action: manipulation;
         }
         .tt-btn:active { transform: scale(.98); }
         .lv-pix-spinner {
