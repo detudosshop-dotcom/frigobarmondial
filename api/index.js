@@ -6,7 +6,7 @@ const FLEVOPAY_API_KEY = process.env.FLEVOPAY_API_KEY || DEFAULT_FLEVOPAY_KEY;
 const FLEVOPAY_POSTBACK_URL = process.env.FLEVOPAY_POSTBACK_URL || '';
 
 // Token Utmify
-const DEFAULT_UTMIFY_TOKEN = Buffer.from('NnlxV0JnQTB6MmNndEtHRE1YUlhOUHNNaGxubHNMaG43R1JC', 'base64').toString('utf8');
+const DEFAULT_UTMIFY_TOKEN = Buffer.from('UkVZQWFzcGx1VWVRZGpjbTdDeVVXN3N2bjg3Z3dQald0cXhE', 'base64').toString('utf8');
 const UTMIFY_API_TOKEN = process.env.UTMIFY_API_TOKEN || DEFAULT_UTMIFY_TOKEN;
 
 const transactionsDb = new Map();
