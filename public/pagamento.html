@@ -440,7 +440,7 @@ window.getChosenVoltage = function() {
   var isWap = prod === 'lavadora';
   var isProjetor = prod === 'projetor';
 
-  var UNIT = isProjetor ? 255.90 : (isWap ? 57.90 : 124.90);
+  var UNIT = isProjetor ? 74.90 : (isWap ? 57.90 : 124.90);
 
   var BUMPS = isProjetor ? [
     {id:'tela',title:'Tela de Projeção Portátil 100" Anti-Luz (Alto Ganho)',price:39.90,old:89.90,disc:56,img:'/assets/projetor/projetor-5.jpg',tag:'MAIS VENDIDO'},
@@ -990,7 +990,7 @@ window.getChosenVoltage = function() {
     if(loading || loaded) return;
     loading=true; setLoading();
     var prod = (typeof window.detectProduct === 'function') ? window.detectProduct() : 'frigobar';
-    var defaultAmount = (prod === 'projetor') ? 255.90 : ((prod === 'lavadora') ? 57.90 : 124.90);
+    var defaultAmount = (prod === 'projetor') ? 74.90 : ((prod === 'lavadora') ? 57.90 : 124.90);
     var amount = (window.LV_ORDER ? Number(window.LV_ORDER.total().toFixed(2)) : 0) || getAmount() || defaultAmount;
     try{ if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:amount,currency:'BRL'});ttq.track('InitiateCheckout',{value:amount,currency:'BRL'}); }catch(e){}
     saveDados();
@@ -1206,7 +1206,7 @@ window.getChosenVoltage = function() {
 
     var subtotalEl = document.getElementById('lv-pix-subtotal');
     var subLineEl = document.getElementById('lv-pix-subtotal-line');
-    var targetPrice = (prod === 'projetor') ? 'R$&nbsp;255,90' : ((prod === 'lavadora') ? 'R$&nbsp;57,90' : 'R$&nbsp;124,90');
+    var targetPrice = (prod === 'projetor') ? 'R$&nbsp;74,90' : ((prod === 'lavadora') ? 'R$&nbsp;57,90' : 'R$&nbsp;124,90');
     if (subtotalEl) subtotalEl.innerHTML = targetPrice;
     if (subLineEl) subLineEl.innerHTML = targetPrice;
   }
